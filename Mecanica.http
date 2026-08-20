@@ -1,0 +1,6 @@
+@Mecanica_HostAddress = http://localhost:5220
+
+GET {{Mecanica_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
