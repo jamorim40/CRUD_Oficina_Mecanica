@@ -2,10 +2,10 @@
 {
     public enum EnumStatusOrdemServico
     {
-        Aberta = 1,
-        EmExecucao = 2,
-        Aguardando = 3,
-        Finalizada = 4,
-        Cancelada = 5
+        Aberta = 0,
+        EmExecucao = 1,
+        Aguardando = 2,
+        Finalizada = 3,
+        Cancelada = 4
     }
 }

@@ -7,13 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="Configurations\" />
     <Folder Include="Middleware\" />
-    <Folder Include="Validations\" />
     <Folder Include="Routes\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="Service\" />
   </ItemGroup>
 
   <ItemGroup>
