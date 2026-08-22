@@ -1,9 +1,9 @@
-﻿using Mecanica.Models.Dtos;
+﻿using Mecanica.Models.Dtos.Requests;
 
 namespace Mecanica.Validations.Interfaces
 {
     public interface IClienteValidator
     {
-        List<string> validador(ClienteCreateDto dto);
+        List<string> validador(CriaClienteDto dto);
     }
 }

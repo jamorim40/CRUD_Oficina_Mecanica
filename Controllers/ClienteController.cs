@@ -1,7 +1,6 @@
-﻿using Mecanica.Models.Dtos;
+﻿using Mecanica.Models.Dtos.Requests;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
-using Mecanica.Validations;
 using Mecanica.Validations.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,14 +22,23 @@ namespace Mecanica.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(ClienteCreateDto dto)
+        public async Task<IActionResult> Get()
         {
             var clientes = await _clienteService.ObterTodos();
             return Ok(clientes);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var cliente = await _clienteService.ObterPorId(id);
+            if (cliente is null)
+                return NotFound("Cliente não enocntrado.");
+            return Ok(cliente);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> Post(ClienteCreateDto dto)
+        public async Task<IActionResult> Post(CriaClienteDto dto)
         {
             dto.Telefone = TelefoneNormalizer.Normalizar(dto.Telefone);
             dto.Email = EmailNormalizer.Normalizar(dto.Email);
@@ -41,6 +49,16 @@ namespace Mecanica.Controllers
 
             await _clienteService.CriarAsync(dto);
             return Ok();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, AtualizarClienteDto dto)
+        {
+            dto.Telefone = TelefoneNormalizer.Normalizar(dto.Telefone);
+            dto.Email = EmailNormalizer.Normalizar(dto.Email);
+
+            await _clienteService.AtualizarAsync(id, dto);
+            return NoContent();
         }
 
     }

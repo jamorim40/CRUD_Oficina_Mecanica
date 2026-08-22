@@ -1,11 +1,11 @@
-﻿using Mecanica.Models.Dtos;
+﻿using Mecanica.Models.Dtos.Requests;
 using Mecanica.Validations.Interfaces;
 
 namespace Mecanica.Validations
 {
     public class ClienteValidator : IClienteValidator
     {
-        public List<string> validador(ClienteCreateDto dto)
+        public List<string> validador(CriaClienteDto dto)
         {
             List<string> erros = new();
             if (string.IsNullOrWhiteSpace(dto.Nome))

@@ -14,38 +14,49 @@ namespace Mecanica.Repositories.Repository
             _appDbContext = appDbContext;
         }
 
-        public async Task<Cliente> AddAsync(Cliente cliente)
-        {
-            _appDbContext.Clientes.Add(cliente);
-            await _appDbContext.SaveChangesAsync();
-            return cliente;
-        }
-
-        public Task<bool> ExistsAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<List<Cliente>> GetAllAsync()
+        public async Task<List<Cliente>> ObterTodos()
         {
             return await _appDbContext.Clientes.
                     Where(c => c.Ativo)
                     .ToListAsync();
         }
 
-        public Task<Cliente> GetByIdAsync(int id)
+        public async Task<Cliente?> ObterPorId(int id)
+        {
+            return await _appDbContext.Clientes.
+                FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<Cliente> CriarAsync(Cliente cliente)
+        {
+            _appDbContext.Clientes.Add(cliente);
+            await _appDbContext.SaveChangesAsync();
+            return cliente;
+        }
+
+        public async Task<Cliente> AtualizarAsync(Cliente cliente)
+        {
+
+            _appDbContext.Clientes.Update(cliente);
+           
+            await _appDbContext.SaveChangesAsync();
+            return cliente;
+            
+        }
+       
+
+        public Task<bool> ExistsAsync(int id)
         {
             throw new NotImplementedException();
         }
+
+
 
         public Task SoftDeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(Cliente cliente)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
