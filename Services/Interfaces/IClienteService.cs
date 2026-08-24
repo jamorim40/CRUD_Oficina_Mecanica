@@ -1,5 +1,5 @@
-﻿using Mecanica.Models.Dtos.Requests;
-using Mecanica.Models.Dtos.Responses;
+﻿using Mecanica.Models.Dtos.Requests.Cliente;
+using Mecanica.Models.Dtos.Responses.Cliente;
 using Mecanica.Models.Entities;
 
 namespace Mecanica.Services.Interfaces
@@ -10,5 +10,6 @@ namespace Mecanica.Services.Interfaces
         Task<RespostaClienteDto> ObterPorId(int id);
         Task<Cliente> CriarAsync(CriaClienteDto dto);
         Task<Cliente> AtualizarAsync(int id, AtualizarClienteDto dto);
+        Task SoftDeleteAsync(int id);
     }
 }

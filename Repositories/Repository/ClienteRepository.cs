@@ -44,19 +44,19 @@ namespace Mecanica.Repositories.Repository
             
         }
        
+        public async Task SoftDeleteAsync(int id)
+        {
+            var cliente = await _appDbContext.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+            if (cliente == null)
+                return;
+            cliente.Ativo = false;
+            await _appDbContext.SaveChangesAsync();
+            
+        }
 
         public Task<bool> ExistsAsync(int id)
         {
             throw new NotImplementedException();
-        }
-
-
-
-        public Task SoftDeleteAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-       
+        }      
     }
 }

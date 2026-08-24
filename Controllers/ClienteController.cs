@@ -1,7 +1,7 @@
-﻿using Mecanica.Models.Dtos.Requests;
+﻿using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
-using Mecanica.Validations.Interfaces;
+using Mecanica.Validations.Interfaces.Cliente;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mecanica.Controllers
@@ -33,7 +33,7 @@ namespace Mecanica.Controllers
         {
             var cliente = await _clienteService.ObterPorId(id);
             if (cliente is null)
-                return NotFound("Cliente não enocntrado.");
+                return NotFound("Cliente não enocntrado ou inativo.");
             return Ok(cliente);
         }
 
@@ -59,6 +59,20 @@ namespace Mecanica.Controllers
 
             await _clienteService.AtualizarAsync(id, dto);
             return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _clienteService.SoftDeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest( ex.Message );
+            }
         }
 
     }

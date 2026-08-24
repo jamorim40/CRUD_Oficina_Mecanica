@@ -3,8 +3,8 @@ using Mecanica.Repositories.Interfaces;
 using Mecanica.Repositories.Repository;
 using Mecanica.Services.Interfaces;
 using Mecanica.Services.Service;
-using Mecanica.Validations;
-using Mecanica.Validations.Interfaces;
+using Mecanica.Validations.Interfaces.Cliente;
+using Mecanica.Validations.Interfaces.Veiculo;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,9 +19,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ClienteRepository>();
+builder.Services.AddScoped<VeiculoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IVeiculoService, VeiculoService>();
 builder.Services.AddScoped<IClienteValidator, ClienteValidator>();
+builder.Services.AddScoped<IVeiculoValidador, VeiculoValidador>();
 
 
 var app = builder.Build();

@@ -1,5 +1,5 @@
-﻿using Mecanica.Models.Dtos.Requests;
-using Mecanica.Models.Dtos.Responses;
+﻿using Mecanica.Models.Dtos.Requests.Cliente;
+using Mecanica.Models.Dtos.Responses.Cliente;
 using Mecanica.Models.Entities;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Services.Interfaces;
@@ -18,9 +18,9 @@ namespace Mecanica.Services.Service
             var cliente = await _repository.ObterTodos();
             return cliente.Select(c => new RespostaClienteDto
             {
-                Id = c.Id,
                 Nome = c.Nome,
                 Telefone = c.Telefone,
+                Email = c.Email
             }).ToList();
         }
 
@@ -28,14 +28,14 @@ namespace Mecanica.Services.Service
         {
             var cliente = await _repository.ObterPorId(id);
             if (cliente is null)
-                throw new Exception($"Cliente{id} não encontrado");
+                return null!;
             if (!cliente.Ativo)
-                throw new Exception($"Cliente {id}está inativo");
+                return null!;
             return new RespostaClienteDto
             {
-                Id = cliente.Id,
                 Nome = cliente.Nome,
                 Telefone = cliente.Telefone,
+                Email = cliente.Email
             };
         }
         public async Task<Cliente> CriarAsync(CriaClienteDto dto)
@@ -62,6 +62,18 @@ namespace Mecanica.Services.Service
             cliente.Email = dto.Email;
 
            return await _repository.AtualizarAsync(cliente);
+        }
+
+       
+
+        public async Task SoftDeleteAsync(int id)
+        {
+            var cliente = await _repository.ObterPorId(id);
+            if (cliente is null)
+                throw new Exception("Cliente não encontrado. ");
+            if (!cliente.Ativo)
+                throw new Exception("Cliente já está inativo");
+            await _repository.SoftDeleteAsync(id);
         }
     }
 }
