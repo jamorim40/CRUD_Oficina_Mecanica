@@ -5,6 +5,30 @@
 ## Resumo
 API REST para gerenciamento de uma oficina mecânica com entidades principais: Cliente, Veículo e Ordem de Serviço.
 
+## Arquitetura
+
+O projeto segue a arquitetura em camadas:
+
+Controller
+↓
+Service
+↓
+Repository
+↓
+Entity Framework Core
+↓
+SQL Server
+
+Principais conceitos utilizados:
+
+- DTOs de Request e Response
+- Repository Pattern
+- Service Layer
+- Soft Delete
+- Normalização de dados
+- ResultadoServico<T>
+- Enum com Description
+
 ## Estrutura do projeto
 - Controllers/ - endpoints HTTP (ClienteController, VeiculoController, OrdemServicoController)
 - Services/ - regras de negócio e interfaces (IClienteService, IVeiculoService, IOrdemServicoService)
@@ -34,24 +58,38 @@ Veículo (api/veiculo)
 
 Ordem de Serviço (api/ordemservico)
 - GET /api/ordemservico - listar todas as ordens
-- GET /api/ordemservico/placa/{placa} - listar ordens por placa
+- GET /api/ordemservico/{placa} - listar ordens por placa
 - POST /api/ordemservico - criar ordem de serviço
+- PUT /api/ordemservico/{romaneio} - atualizar ordem de serviço (status, datas, observação)
+- DELETE /api/ordemservico/{romaneio} - soft delete 
 
 ## Endpoints / funcionalidades pendentes
-- Atualizar e soft delete de Ordem de Serviço (PUT / DELETE para /api/ordemservico) — métodos lançam NotImplementedException em Services/Service/OrdemServicoService.cs
-- Endpoint GET /api/ordemservico/{id} (se necessário) para obter uma ordem específica
+- Endpoint GET /api/ordemservico/{romaneio} 
+- GET /api/ordemservico/{romaneio} - obter ordem por romaneio (implementar se necessário)
 - Paginação e filtros para listagens (clientes, veículos, ordens)
 - Autenticação e autorização (JWT / Identity)
 
-## Melhorias recomendadas
-- Implementar os métodos AtualizarAsync e SoftDelete em OrdemServicoService e expor endpoints correspondentes no controller se desejado.
-- Tratamento centralizado de erros (middleware) para padronizar respostas de erro.
+## Regras de Negócio
+
+### Cliente
+- Exclusão por Soft Delete
+
+### Veículo
+- Placa normalizada antes de persistir
+
+### Ordem de Serviço
+- Criação baseada na placa
+- Associação automática ao VeiculoId
+- Atualização por Romaneio
+- Exclusão por Soft Delete
+- Status armazenado como enum e exibido como texto
+
+## Possíveis Melhorias
 - Logging estruturado (Serilog) e correlação de requisições.
-- Validations: reforçar mensagens e códigos HTTP apropriados.
+
 - Documentação Swagger mais completa (ex.: examples, responses, versões de API).
 - Mapear DTOs com AutoMapper para reduzir código de transformação.
 - Cobertura de testes unitários e de integração (xUnit/NUnit) para services e controllers.
-- CI/CD (GitHub Actions) para build, testes e publish automatizado.
 - Dockerfile e docker-compose para facilitar execução local/produção.
 - Políticas de retry/transações ao interagir com banco de dados quando necessário.
 - Migrations do EF Core versionadas e procedimento de deploy seguro.
@@ -61,17 +99,37 @@ Ordem de Serviço (api/ordemservico)
 Feito
 - Estrutura básica do projeto criada (Controllers, Services, Repositories, Models)
 - Endpoints CRUD básicos para Cliente e Veículo implementados
-- Endpoints: listar e criar Ordem de Serviço implementados
+- Endpoints: listar, criar, atualizar e soft delete de Ordem de Serviço implementados
 - Swagger configurado (AddSwaggerGen)
 
+Correções realizadas no código (refletidas no repositório):
+- Implementado ExistsAsync / removida NotImplementedException residual em repositórios.
+- Corrigido typo no DTO de resposta de veículo: Palca → Placa (contratos e mapeamentos atualizados).
+- Padronizado método de soft delete: SoftDeleteAsync em repositórios, services e controllers.
+- Corrigido typo em nomes de listagem de ordens: ObeterTodos → ObterTodos.
+- Removidas ocorrências de NotImplementedException após implementar os métodos necessários.
+
 Faltando / Próximas tarefas
-- Implementar AtualizarAsync e SoftDelete em OrdemServicoService
-- Criar endpoints PUT/DELETE para Ordem de Serviço
-- Adicionar autenticação/autorizações
-- Adicionar testes automatizados (unitários e integração)
+- Implementar/validar endpoints adicionais (GET por romaneio/id se necessário)
 - Centralizar tratamento de erros e logging
-- Documentar contratos DTOs no Swagger
-- Adicionar CI/CD e Docker
+- Criar/rodar testes automatizados (unitários e integração) focados em: criação, atualização e soft delete de ordens
+- Validations: reforçar mensagens e códigos HTTP apropriados
+
+## Roadmap
+
+Fase 1 
+- API REST
+
+Fase 2
+- Middleware Global de Exceções
+- JWT
+- Autorização
+
+Fase 3
+- Blazor
+
+Fase 4
+- Relatórios
 
 ## Backlog pós-API (Blazor)
 
