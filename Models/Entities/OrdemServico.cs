@@ -1,4 +1,4 @@
-﻿using Mecanica.Models.Entities.Bases;
+﻿ using Mecanica.Models.Entities.Bases;
 using Mecanica.Models.Enums;
 
 namespace Mecanica.Models.Entities

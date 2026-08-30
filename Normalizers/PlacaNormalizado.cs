@@ -2,7 +2,7 @@
 
 namespace Mecanica.Normalizers
 {
-    public class PlacaNormalizer
+    public class PlacaNormalizado
     {
         public static string Normalizar(string placa)
         {

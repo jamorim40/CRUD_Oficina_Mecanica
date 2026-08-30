@@ -1,10 +1,8 @@
 ﻿using Mecanica.Services.Interfaces;
 using Mecanica.Validations.Interfaces.Veiculo;
 using Microsoft.AspNetCore.Mvc;
-using Mecanica.Models.Dtos.Requests;
 using Mecanica.Models.Dtos.Requests.Veiculo;
 using Mecanica.Normalizers;
-using Mecanica.Models.Entities;
 
 namespace Mecanica.Controllers
 {
@@ -41,7 +39,7 @@ namespace Mecanica.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(CriarVeiculoDto dto)
         {
-            dto.Placa = PlacaNormalizer.Normalizar(dto.Placa);
+            dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
             var erros = _veiculoValidador.validador(dto);
             if (erros.Any())
                 return BadRequest(erros);
@@ -52,7 +50,7 @@ namespace Mecanica.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, AtualizarVeiculoDto dto)
         {
-            dto.Placa = PlacaNormalizer.Normalizar(dto.Placa);
+            dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
             await _veiculoService.AtualizarAsync(id, dto);
             return NoContent();
         }

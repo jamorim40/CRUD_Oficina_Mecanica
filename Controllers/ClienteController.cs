@@ -40,8 +40,8 @@ namespace Mecanica.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(CriaClienteDto dto)
         {
-            dto.Telefone = TelefoneNormalizer.Normalizar(dto.Telefone);
-            dto.Email = EmailNormalizer.Normalizar(dto.Email);
+            dto.Telefone = TelefoneNormalizado.Normalizar(dto.Telefone);
+            dto.Email = EmailNormalizado.Normalizar(dto.Email);
 
             var erros = _clienteValidador.validador(dto);
             if (erros.Any())
@@ -54,8 +54,8 @@ namespace Mecanica.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, AtualizarClienteDto dto)
         {
-            dto.Telefone = TelefoneNormalizer.Normalizar(dto.Telefone);
-            dto.Email = EmailNormalizer.Normalizar(dto.Email);
+            dto.Telefone = TelefoneNormalizado.Normalizar(dto.Telefone);
+            dto.Email = EmailNormalizado.Normalizar(dto.Email);
 
             await _clienteService.AtualizarAsync(id, dto);
             return NoContent();

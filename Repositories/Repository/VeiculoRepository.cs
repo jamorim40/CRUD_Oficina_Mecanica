@@ -26,6 +26,10 @@ namespace Mecanica.Repositories.Repository
             return await _appDbContext.Veiculos.
                 FirstOrDefaultAsync(c => c.Id == id);
         }
+        public async Task<Veiculo?> ObterPorPlaca(string placa)
+        {
+            return await _appDbContext.Veiculos.FirstOrDefaultAsync(v => v.Placa == placa);
+        }
 
         public async Task<Veiculo> CriarVeiculoAsync(Veiculo veiculo)
         {
@@ -49,5 +53,6 @@ namespace Mecanica.Repositories.Repository
             veiculo.Ativo = false;
             await _appDbContext.SaveChangesAsync();
         }
+
     }
 }
