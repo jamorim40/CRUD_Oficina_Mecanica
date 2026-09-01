@@ -52,11 +52,6 @@ namespace Mecanica.Repositories.Repository
             cliente.Ativo = false;
             await _appDbContext.SaveChangesAsync();
             
-        }
-
-        public Task<bool> ExistsAsync(int id)
-        {
-            throw new NotImplementedException();
-        }      
+        }   
     }
 }

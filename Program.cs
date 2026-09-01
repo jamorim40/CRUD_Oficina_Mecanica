@@ -1,5 +1,5 @@
 using Mecanica.Datas;
-using Mecanica.Models.Entities;
+using Mecanica.Middleware;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Repositories.Repository;
 using Mecanica.Services.Interfaces;
@@ -22,7 +22,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ClienteRepository>();
 builder.Services.AddScoped<VeiculoRepository>();
-builder.Services.AddScoped<OrdemServico>();
+builder.Services.AddScoped<OrdemServicoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 builder.Services.AddScoped<IOrdemServicoRepository, OrdemServicoRepository>();
@@ -43,6 +43,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExcecoesMiddleware>();
 
 app.UseAuthorization();
 

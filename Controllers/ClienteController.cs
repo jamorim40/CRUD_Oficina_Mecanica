@@ -1,4 +1,5 @@
-﻿using Mecanica.Models.Dtos.Requests.Cliente;
+﻿using Mecanica.Exceptions;
+using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
 using Mecanica.Validations.Interfaces.Cliente;
@@ -32,8 +33,10 @@ namespace Mecanica.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var cliente = await _clienteService.ObterPorId(id);
+
             if (cliente is null)
-                return NotFound("Cliente não enocntrado ou inativo.");
+                throw new  NaoEncontradoException($"Cliente de Id: {id} não encontrado.");
+
             return Ok(cliente);
         }
 

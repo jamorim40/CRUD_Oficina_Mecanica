@@ -1,9 +1,10 @@
-﻿using Mecanica.Models.Dtos.Requests.Veiculo;
+﻿using Mecanica.Exceptions;
+using Mecanica.Models.Dtos.Requests.Veiculo;
 using Mecanica.Models.Dtos.Responses.Veiculo;
 using Mecanica.Models.Entities;
+using Mecanica.Normalizers;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Services.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Mecanica.Services.Service
 {
@@ -21,7 +22,7 @@ namespace Mecanica.Services.Service
             {
                 Marca = c.Marca,
                 Modelo = c.Modelo,
-                Palca = c.Placa
+                Placa = c.Placa
             }).ToList();
         }
         public async Task<RespostaVeiculoDto> ObterPorId(int id)
@@ -35,9 +36,29 @@ namespace Mecanica.Services.Service
             {
                 Modelo = veiculo.Modelo,
                 Marca = veiculo.Marca,
-                Palca = veiculo.Placa
+                Placa = veiculo.Placa
             };
-        }       
+        }
+
+        public async Task<RespostaVeiculoDto> ObterPorPlaca(string placa)
+        {
+            placa = PlacaNormalizado.Normalizar(placa);
+            var veiculo = await _repository.ObterPorPlaca(placa);
+
+            if (veiculo is null)
+                return null!;
+            if (!veiculo.Ativo)
+                return null!;
+
+            return new RespostaVeiculoDto
+            {
+                Marca = veiculo.Marca,
+                Modelo = veiculo.Modelo,
+                Placa = veiculo.Placa
+
+            };
+        }
+
         public async Task<Veiculo> CriarAsync(CriarVeiculoDto dto)
         {
             var veiculo = new Veiculo()
@@ -50,30 +71,46 @@ namespace Mecanica.Services.Service
             return await _repository.CriarVeiculoAsync(veiculo);
         }
 
-        public async Task<Veiculo> AtualizarAsync(int id, AtualizarVeiculoDto dto)
+        //public async Task<Veiculo> AtualizarAsync(int id, AtualizarVeiculoDto dto)
+        //{
+        //    var veiculo = await _repository.ObterPorId(id);
+        //    if (veiculo is null)
+        //        throw new Exception("Veiculo não encontrado.");
+        //    if (!veiculo.Ativo)
+        //        throw new Exception("Veiculo inativo.");
+        //    veiculo.Marca = dto.Marca;
+        //    veiculo.Modelo = dto.Modelo;
+        //    veiculo.Placa = dto.Placa;
+
+        //    return await _repository.AtualizarAsync(veiculo);
+
+        //}
+        public async Task<Veiculo> AtualizarAsync(string placa, AtualizarVeiculoDto dto)
         {
-            var veiculo = await _repository.ObterPorId(id);
+            var veiculo = await _repository.ObterPorPlaca(placa);
             if (veiculo is null)
-                throw new Exception("Veiculo não encontrado.");
-            if (!veiculo.Ativo)
-                throw new Exception("Veiculo inativo.");
-            veiculo.Marca = dto.Marca;
-            veiculo.Modelo = dto.Modelo;
-            veiculo.Placa = dto.Placa;
+                throw new NaoEncontradoException("Veículo não encontrado.");
 
-            return await _repository.AtualizarAsync(veiculo);
-
+            var veiculoEncontrado = veiculo;
+            if (!veiculoEncontrado.Ativo)
+                throw new Exception("Veículo inativo");
+            veiculoEncontrado.Marca = dto.Marca;
+            veiculoEncontrado.Modelo = dto.Modelo;
+            veiculoEncontrado.Placa = dto.Placa;
+            return await _repository.AtualizarAsync(veiculoEncontrado);
+            //throw new NotImplementedException();
         }
 
-        public async Task SoftDeleAsync(int id)
+        public async Task SoftDeleteAsync(string placa)
         {
-            var veiculo = await _repository.ObterPorId(id);
+            var veiculo = await _repository.ObterPorPlaca(placa);
             if (veiculo is null)
                 throw new Exception("Veículo não encontrado. ");
             if (!veiculo.Ativo)
                 throw new Exception("Veículo inativo.");
-            await _repository.SoftDeleAsync(id);
+            await _repository.SoftDeleteAsync(placa);
         }
+
 
     }
 }

@@ -1,6 +1,6 @@
 # Projeto: CRUD_Oficina_Mecanica
 
-Última atualização: 2026-08-28
+Última atualização: 2026-09-01
 
 ## Resumo
 API REST para gerenciamento de uma oficina mecânica com entidades principais: Cliente, Veículo e Ordem de Serviço.
@@ -64,7 +64,6 @@ Ordem de Serviço (api/ordemservico)
 - DELETE /api/ordemservico/{romaneio} - soft delete 
 
 ## Endpoints / funcionalidades pendentes
-- Endpoint GET /api/ordemservico/{romaneio} 
 - GET /api/ordemservico/{romaneio} - obter ordem por romaneio (implementar se necessário)
 - Paginação e filtros para listagens (clientes, veículos, ordens)
 - Autenticação e autorização (JWT / Identity)
@@ -149,5 +148,11 @@ Notas técnicas iniciais:
 - Considerar componentes reutilizáveis e design system (ex.: MudBlazor, Radzen ou Bootstrap customizado).
 
 ## Observação
+
+## Histórico de atualizações
+
+- 2026-09-01: Atualizado documento a pedido do responsável; refletidas correções de código (typos e padronizações) e status atual do projeto. Build não executado nesta atualização.
+- 2026-08-30: Atualizado documento com seção 'Backlog pós-API (Blazor)' contendo telas (Cliente, Funcionários, Permissões, Ordem de Serviço, Relatórios) e tela de Login; notas técnicas iniciais adicionadas.
+- 2026-08-30: Corrigidas pendências apontadas na revisão de código: implemented ExistsAsync, corrigido Palca→Placa, padronizado SoftDeleteAsync, corrigido ObeterTodos→ObterTodos e removidas NotImplementedException residuais.
 
 Observação: este documento deve ser atualizado a cada commit quando houver mudanças relevantes. Para atualizar, edite este arquivo e registre a data e as alterações realizadas.

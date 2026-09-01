@@ -14,7 +14,7 @@ namespace Mecanica.Repositories.Repository
             _appDbContext = appDbContext;
         }
 
-        public async Task<List<OrdemServico>> ObeterTodos()
+        public async Task<List<OrdemServico>> ObterTodos()
         {
             return await _appDbContext.OrdemServicos
                 .Include(o => o.Veiculo)

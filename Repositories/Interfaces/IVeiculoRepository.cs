@@ -9,6 +9,6 @@ namespace Mecanica.Repositories.Interfaces
         Task<Veiculo?> ObterPorPlaca(string placa);
         Task<Veiculo> CriarVeiculoAsync(Veiculo veiculo);
         Task<Veiculo> AtualizarAsync(Veiculo veiculo);
-        Task SoftDeleAsync(int id);
+        Task SoftDeleteAsync(string placa);
     }
 }

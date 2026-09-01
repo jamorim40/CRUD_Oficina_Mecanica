@@ -1,4 +1,5 @@
-﻿using Mecanica.Models.Dtos.Requests.OrdemServico;
+﻿using Mecanica.Exceptions;
+using Mecanica.Models.Dtos.Requests.OrdemServico;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
 using Mecanica.Validations.Interfaces.OrdemServico;
@@ -27,13 +28,14 @@ namespace Mecanica.Controllers
             return Ok(ordemServico);
         }
 
-        [HttpGet("placa/{placa}")]
+        [HttpGet("{placa}")]
         public async Task<IActionResult> GetByPlaca(string placa)
         {
             var ordemServico = await _ordemServicoService.ObterPorPlaca(placa);
 
             if (!ordemServico.Any())
-                return NotFound($"Nenhuma ordem de serviço encontrada para a placa {placa} ");
+                //return NotFound($"Nenhuma ordem de serviço encontrada para a placa {placa} ");
+                throw new NaoEncontradoException($"Não vou encontrado Ordem de Servico para a placa: {placa}.");
 
             return Ok(ordemServico);
 

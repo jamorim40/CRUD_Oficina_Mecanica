@@ -22,7 +22,7 @@ namespace Mecanica.Services.Service
         }
         public async Task<List<RespostaCriarOrdemServicoDto>> ObterTodos()
         {
-            var ordemServico = await _repository.ObeterTodos();
+            var ordemServico = await _repository.ObterTodos();
 
             return ordemServico.Select(o => new RespostaCriarOrdemServicoDto
             {
@@ -65,17 +65,18 @@ namespace Mecanica.Services.Service
         {
             dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
 
-            var veiculo = await _veiculoRepository.ObterPorPlaca(dto.Placa);
+            var veiculos = await _veiculoRepository.ObterPorPlaca(dto.Placa);
 
-            if (veiculo is null)
+            if (veiculos is null)
                 return new ResultadoServico<RespostaCriarOrdemServicoDto>
                 {
                     Sucesso = false,
                     Mensagem = $"Veículo {dto.Placa} não encontrado."
                 };
+
             var ordemServico = new OrdemServico
             {
-                VeiculoId = veiculo.Id,
+                VeiculoId = veiculos.Id,
                 Descricao = dto.Descricao,
                 Observacao = dto.Observacao,
                 Status = EnumStatusOrdemServico.Aberto
@@ -86,9 +87,9 @@ namespace Mecanica.Services.Service
                 Sucesso = true,
                 Conteudo = new RespostaCriarOrdemServicoDto
                 {
-                    Placa = veiculo.Placa,
-                    Marca = veiculo.Marca,
-                    Modelo = veiculo.Modelo,
+                    Placa = veiculos.Placa,
+                    Marca = veiculos.Marca,
+                    Modelo = veiculos.Modelo,
                     Romaneio = ordemServico.Romaneio,
                     Descricao = ordemServico.Descricao,
                     DataCadastro = ordemServico.DataCadastro,

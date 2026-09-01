@@ -9,6 +9,5 @@ namespace Mecanica.Repositories.Interfaces
         Task<Cliente> CriarAsync(Cliente cliente);
         Task<Cliente>AtualizarAsync(Cliente cliente);
         Task SoftDeleteAsync(int id);
-        Task<bool> ExistsAsync(int id);
     }
 }

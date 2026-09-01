@@ -43,16 +43,17 @@ namespace Mecanica.Repositories.Repository
             _appDbContext.Update(veiculo);
             await _appDbContext.SaveChangesAsync();
             return veiculo;
-        } 
+        }
 
-        public async Task SoftDeleAsync(int id)
+        public async Task SoftDeleteAsync(string placa)
         {
-            var veiculo = await _appDbContext.Veiculos.FirstOrDefaultAsync(c => c.Id == id);
+            var veiculo = await _appDbContext.Veiculos.FirstOrDefaultAsync(c => c.Placa == placa);
             if (veiculo is null)
                 return;
             veiculo.Ativo = false;
             await _appDbContext.SaveChangesAsync();
         }
-
     }
+
+       
 }
