@@ -44,14 +44,19 @@ namespace Mecanica.Repositories.Repository
             
         }
        
-        public async Task SoftDeleteAsync(int id)
+        public async Task SoftDeleteAsync(string cpfCnpj)
         {
-            var cliente = await _appDbContext.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+            var cliente = await _appDbContext.Clientes.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
             if (cliente == null)
                 return;
             cliente.Ativo = false;
             await _appDbContext.SaveChangesAsync();
             
-        }   
+        }
+
+        public async Task<Cliente?> ObterPorCpfCnpj(string cpfCnpj)
+        {
+            return await _appDbContext.Clientes.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
+        }
     }
 }

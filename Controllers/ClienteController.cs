@@ -2,6 +2,7 @@
 using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
+using Mecanica.Validations;
 using Mecanica.Validations.Interfaces.Cliente;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,13 +30,13 @@ namespace Mecanica.Controllers
             return Ok(clientes);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{cpfCnpj}")]
+        public async Task<IActionResult> GetById(string cpfCnpj)
         {
-            var cliente = await _clienteService.ObterPorId(id);
+            var cliente = await _clienteService.ObterPorCpfCnpj(cpfCnpj);
 
             if (cliente is null)
-                throw new  NaoEncontradoException($"Cliente de Id: {id} não encontrado.");
+                throw new  NaoEncontradoException($"Cliente de cpfCnpj: {cpfCnpj} não encontrado.");
 
             return Ok(cliente);
         }
@@ -45,6 +46,7 @@ namespace Mecanica.Controllers
         {
             dto.Telefone = TelefoneNormalizado.Normalizar(dto.Telefone);
             dto.Email = EmailNormalizado.Normalizar(dto.Email);
+            //dto.CpfCnpj = DocumentoValidador.ValidarCpfCnpj(dto.CpfCnpj);
 
             var erros = _clienteValidador.validador(dto);
             if (erros.Any())
@@ -54,27 +56,29 @@ namespace Mecanica.Controllers
             return Ok();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, AtualizarClienteDto dto)
+        [HttpPut("{cpfCnpj}")]
+        public async Task<IActionResult> Put(string cpfCnpj, AtualizarClienteDto dto)
         {
             dto.Telefone = TelefoneNormalizado.Normalizar(dto.Telefone);
             dto.Email = EmailNormalizado.Normalizar(dto.Email);
 
-            await _clienteService.AtualizarAsync(id, dto);
+            await _clienteService.AtualizarAsync(cpfCnpj, dto);
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{cpfCnpj}")]
+        public async Task<IActionResult> Delete(string cpfCnpj)
         {
+            //return Ok(cpfCnpj);
             try
             {
-                await _clienteService.SoftDeleteAsync(id);
+
+                await _clienteService.SoftDeleteAsync(cpfCnpj);
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest( ex.Message );
+                return BadRequest(ex.Message);
             }
         }
 

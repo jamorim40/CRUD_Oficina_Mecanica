@@ -1,6 +1,7 @@
 ﻿using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Models.Dtos.Responses.Cliente;
 using Mecanica.Models.Entities;
+using Mecanica.Normalizers;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Services.Interfaces;
 
@@ -20,7 +21,8 @@ namespace Mecanica.Services.Service
             {
                 Nome = c.Nome,
                 Telefone = c.Telefone,
-                Email = c.Email
+                Email = c.Email,
+                CpfCnpj = c.CpfCnpj,
             }).ToList();
         }
 
@@ -38,6 +40,22 @@ namespace Mecanica.Services.Service
                 Email = cliente.Email
             };
         }
+        public async Task<RespostaClienteDto> ObterPorCpfCnpj(string cpfCnpj)
+        {
+            var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
+            if (cliente is null)
+                return null!;
+            if (!cliente.Ativo)
+                return null!;
+
+            return new RespostaClienteDto
+            {
+                Nome = cliente.Nome,
+                Telefone = cliente.Telefone,
+                Email = cliente.Email,
+                CpfCnpj = cliente.CpfCnpj!
+            };
+        }
         public async Task<Cliente> CriarAsync(CriaClienteDto dto)
         {
             var cliente = new Cliente
@@ -45,14 +63,15 @@ namespace Mecanica.Services.Service
                 Nome = dto.Nome,
                 Telefone = dto.Telefone,
                 Email = dto.Email,
+                CpfCnpj = dto.CpfCnpj,
             };
             return await _repository.CriarAsync(cliente);
             
         }
 
-        public async Task<Cliente> AtualizarAsync(int id, AtualizarClienteDto dto)
+        public async Task<Cliente> AtualizarAsync(string cpfCnpj, AtualizarClienteDto dto)
         {
-            var cliente = await _repository.ObterPorId(id);
+            var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
                 throw new Exception("Cliente não encontrado. ");
             if (!cliente.Ativo)
@@ -60,20 +79,23 @@ namespace Mecanica.Services.Service
             cliente.Nome = dto.Nome;
             cliente.Telefone = dto.Telefone;
             cliente.Email = dto.Email;
+            cliente.CpfCnpj = dto.CpfCnpj;
 
            return await _repository.AtualizarAsync(cliente);
         }
 
        
 
-        public async Task SoftDeleteAsync(int id)
+        public async Task SoftDeleteAsync(string cpfCnpj)
         {
-            var cliente = await _repository.ObterPorId(id);
+            cpfCnpj = DocumentoNormalizado.Normalizar(cpfCnpj);
+            var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
-                throw new Exception("Cliente não encontrado. ");
+                throw new Exception($"Cliente não encontrado. {cpfCnpj} ");
             if (!cliente.Ativo)
-                throw new Exception("Cliente já está inativo");
-            await _repository.SoftDeleteAsync(id);
+                throw new Exception("Cliente está inativo");
+            await _repository.SoftDeleteAsync(cpfCnpj);
         }
     }
+
 }

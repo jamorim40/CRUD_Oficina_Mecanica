@@ -28,6 +28,9 @@ namespace Mecanica.Datas
                 entity.Property(x => x.Nome).HasMaxLength(150).IsRequired();
                 entity.Property(x => x.Telefone).HasMaxLength(20);
                 entity.Property(x => x.Email).HasMaxLength(150);
+                entity.Property(x => x.CpfCnpj).HasMaxLength(20);
+                entity.HasIndex(x => x.CpfCnpj).IsUnique();
+                entity.Property(x => x.CpfCnpj).IsRequired();
             });
             //Veiculo
             modelBuilder.Entity<Veiculo>(entity =>

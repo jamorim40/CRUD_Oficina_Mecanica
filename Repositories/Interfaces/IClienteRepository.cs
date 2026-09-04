@@ -6,8 +6,9 @@ namespace Mecanica.Repositories.Interfaces
     {
         Task<List<Cliente>> ObterTodos();
         Task<Cliente?> ObterPorId(int id);
+        Task<Cliente?> ObterPorCpfCnpj(string cpfCnpj);
         Task<Cliente> CriarAsync(Cliente cliente);
         Task<Cliente>AtualizarAsync(Cliente cliente);
-        Task SoftDeleteAsync(int id);
+        Task SoftDeleteAsync(string cpfCnpj);
     }
 }

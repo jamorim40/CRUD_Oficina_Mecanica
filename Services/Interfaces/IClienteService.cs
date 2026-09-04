@@ -8,8 +8,9 @@ namespace Mecanica.Services.Interfaces
     {
         Task<List<RespostaClienteDto>> ObterTodos();
         Task<RespostaClienteDto> ObterPorId(int id);
+        Task<RespostaClienteDto> ObterPorCpfCnpj(string cpfCnpj);
         Task<Cliente> CriarAsync(CriaClienteDto dto);
-        Task<Cliente> AtualizarAsync(int id, AtualizarClienteDto dto);
-        Task SoftDeleteAsync(int id);
+        Task<Cliente> AtualizarAsync(string cpfCnpj, AtualizarClienteDto dto);
+        Task SoftDeleteAsync(string cpfCnpj);
     }
 }

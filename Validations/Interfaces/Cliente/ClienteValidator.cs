@@ -17,7 +17,5 @@ namespace Mecanica.Validations.Interfaces.Cliente
                 erros.Add("Email invállido");
             return erros;
         }
-
-
     }
 }
