@@ -13,9 +13,9 @@ namespace Mecanica.Controllers
     public class OrdemServicoController : ControllerBase
     {
         private readonly IOrdemServicoService _ordemServicoService;
-        private readonly IOrdemServicoValidator _ordemServicoValidador;
+        private readonly IOrdemServicoValidation _ordemServicoValidador;
 
-        public OrdemServicoController(IOrdemServicoService ordemServicoService, IOrdemServicoValidator ordemServicoValidador)
+        public OrdemServicoController(IOrdemServicoService ordemServicoService, IOrdemServicoValidation ordemServicoValidador)
         {
             _ordemServicoService = ordemServicoService;
             _ordemServicoValidador = ordemServicoValidador;
@@ -42,7 +42,7 @@ namespace Mecanica.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(RequisicaoCriarOrdemServicoDto dto)
+        public async Task<IActionResult> Post(CriarOrdemServicoDtoRequest dto)
         {
             var resultado = await _ordemServicoService.CriarAsync(dto);
             if (!resultado.Sucesso)
@@ -51,7 +51,7 @@ namespace Mecanica.Controllers
         }
 
         [HttpPut("{romaneio}")]
-        public async Task<IActionResult> Put(int romaneio, RequisicaoAtualizarOrdemServicoDto dto)
+        public async Task<IActionResult> Put(int romaneio, AtualizarOrdemServicoDtoRequest dto)
         {
             if (!string.IsNullOrWhiteSpace(dto.Status))
             {

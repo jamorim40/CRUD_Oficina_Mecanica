@@ -1,6 +1,6 @@
 ﻿namespace Mecanica.Normalizers
 {
-    public class EmailNormalizado
+    public class EmailNormalized
     {
         public static string Normalizar(string email)
         {

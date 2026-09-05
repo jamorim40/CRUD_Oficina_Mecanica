@@ -14,10 +14,10 @@ namespace Mecanica.Services.Service
         {
             _repository = repository;
         }
-        public async Task<List<RespostaClienteDto>> ObterTodos()
+        public async Task<List<ClienteDtoResponse>> ObterTodos()
         {
             var cliente = await _repository.ObterTodos();
-            return cliente.Select(c => new RespostaClienteDto
+            return cliente.Select(c => new ClienteDtoResponse
             {
                 Nome = c.Nome,
                 Telefone = c.Telefone,
@@ -26,21 +26,21 @@ namespace Mecanica.Services.Service
             }).ToList();
         }
 
-        public async Task<RespostaClienteDto> ObterPorId(int id)
+        public async Task<ClienteDtoResponse> ObterPorId(int id)
         {
             var cliente = await _repository.ObterPorId(id);
             if (cliente is null)
                 return null!;
             if (!cliente.Ativo)
                 return null!;
-            return new RespostaClienteDto
+            return new ClienteDtoResponse
             {
                 Nome = cliente.Nome,
                 Telefone = cliente.Telefone,
                 Email = cliente.Email
             };
         }
-        public async Task<RespostaClienteDto> ObterPorCpfCnpj(string cpfCnpj)
+        public async Task<ClienteDtoResponse> ObterPorCpfCnpj(string cpfCnpj)
         {
             var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
@@ -48,7 +48,7 @@ namespace Mecanica.Services.Service
             if (!cliente.Ativo)
                 return null!;
 
-            return new RespostaClienteDto
+            return new ClienteDtoResponse
             {
                 Nome = cliente.Nome,
                 Telefone = cliente.Telefone,
@@ -56,7 +56,7 @@ namespace Mecanica.Services.Service
                 CpfCnpj = cliente.CpfCnpj!
             };
         }
-        public async Task<Cliente> CriarAsync(CriaClienteDto dto)
+        public async Task<Cliente> CriarAsync(CriaClienteDtoRequest dto)
         {
             var cliente = new Cliente
             {
@@ -69,7 +69,7 @@ namespace Mecanica.Services.Service
             
         }
 
-        public async Task<Cliente> AtualizarAsync(string cpfCnpj, AtualizarClienteDto dto)
+        public async Task<Cliente> AtualizarAsync(string cpfCnpj, AtualizarClienteDtoRequest dto)
         {
             var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
@@ -88,7 +88,7 @@ namespace Mecanica.Services.Service
 
         public async Task SoftDeleteAsync(string cpfCnpj)
         {
-            cpfCnpj = DocumentoNormalizado.Normalizar(cpfCnpj);
+            cpfCnpj = DocumentoNormalized.Normalizar(cpfCnpj);
             var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
                 throw new Exception($"Cliente não encontrado. {cpfCnpj} ");

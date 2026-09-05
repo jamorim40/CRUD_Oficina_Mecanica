@@ -3,9 +3,9 @@ using Microsoft.JSInterop.Infrastructure;
 
 namespace Mecanica.Validations.Interfaces.OrdemServico
 {
-    public class OrdemServicoValidator : IOrdemServicoValidator
+    public class OrdemServicoValidation : IOrdemServicoValidation
     {
-        public List<string> validador(RequisicaoCriarOrdemServicoDto dto)
+        public List<string> validador(CriarOrdemServicoDtoRequest dto)
         {
             List<string> erros = new();
             if (string.IsNullOrWhiteSpace(dto.Placa))

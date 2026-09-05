@@ -2,7 +2,7 @@
 
 namespace Mecanica.Models.Enums
 {
-    public enum EnumStatusOrdemServico
+    public enum StatusOrdemServicoEnums
     {
         [Description("Aberta")]
         Aberto = 0,

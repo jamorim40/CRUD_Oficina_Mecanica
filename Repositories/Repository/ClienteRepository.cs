@@ -27,6 +27,11 @@ namespace Mecanica.Repositories.Repository
                 FirstOrDefaultAsync(c => c.Id == id);
         }
 
+        public async Task<Cliente?> ObterPorCpfCnpj(string cpfCnpj)
+        {
+            return await _appDbContext.Clientes.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
+        }
+
         public async Task<Cliente> CriarAsync(Cliente cliente)
         {
             _appDbContext.Clientes.Add(cliente);
@@ -54,9 +59,5 @@ namespace Mecanica.Repositories.Repository
             
         }
 
-        public async Task<Cliente?> ObterPorCpfCnpj(string cpfCnpj)
-        {
-            return await _appDbContext.Clientes.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
-        }
     }
 }

@@ -3,7 +3,7 @@ using System.Xml.XPath;
 
 namespace Mecanica.Validations
 {
-    public static class DocumentoValidador
+    public static class DocumentoValidation
     {
         public static bool ValidarCpf(string cpf)
         {

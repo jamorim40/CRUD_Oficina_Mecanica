@@ -1,6 +1,6 @@
 ﻿namespace Mecanica.Models.Dtos.Requests.Veiculo
 {
-    public class CriarVeiculoDto
+    public class CriarVeiculoDtoRequest
     {
         public int ClienteId { get; set; }
         public string Marca { get; set; } = string.Empty;

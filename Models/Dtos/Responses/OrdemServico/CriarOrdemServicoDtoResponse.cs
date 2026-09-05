@@ -2,7 +2,7 @@
 
 namespace Mecanica.Models.Dtos.Responses.OrdemServico
 {
-    public class RespostaCriarOrdemServicoDto
+    public class CriarOrdemServicoDtoResponse
     {
         public string Placa { get; set; } = string.Empty;
         public int? Romaneio { get; set; }

@@ -13,7 +13,7 @@ namespace Mecanica.Models.Entities
         public int VeiculoId { get; set; }
         public Veiculo? Veiculo { get; set; }
         public string? Observacao { get; set; }
-        public EnumStatusOrdemServico Status { get; set;}
+        public StatusOrdemServicoEnums Status { get; set;}
 
 
     }

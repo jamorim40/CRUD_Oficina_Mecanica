@@ -147,6 +147,28 @@ Notas técnicas iniciais:
 - Integrar chamadas HTTP à API com HttpClient e tratamento centralizado de erros/timeout.
 - Considerar componentes reutilizáveis e design system (ex.: MudBlazor, Radzen ou Bootstrap customizado).
 
+## Novas implementações
+
+- Ordem de Serviço
+  - Implementado AtualizarAsync(romaneio, dto) em Services/Service/OrdemServicoService.cs e exposto via PUT /api/ordemservico/{romaneio} no controller.
+  - Implementado SoftDelete(romaneio) em Services/Service/OrdemServicoService.cs e exposto via DELETE /api/ordemservico/{romaneio} no controller.
+
+- Veículo
+  - Padronizado SoftDeleteAsync em repository/service/controller e corrigidos mapeamentos de Placa.
+
+- Cliente
+  - SoftDeleteAsync implementado e fluxo de atualização consistente entre service/repository/controller.
+
+- Repositórios
+  - Removidas ocorrências de NotImplementedException; métodos de CRUD essenciais implementados.
+
+## Build
+
+- Ação executada: build do projeto (dotnet build / Visual Studio).
+- Resultado: compilação bem-sucedida.
+
+Atualize-me se deseja que eu adicione o status do build no histórico com o hash do commit, ou que eu crie uma entry no CHANGELOG com essas implementações.
+
 ## Observação
 
 ## Histórico de atualizações

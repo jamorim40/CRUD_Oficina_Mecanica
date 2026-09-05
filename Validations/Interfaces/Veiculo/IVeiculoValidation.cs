@@ -2,8 +2,8 @@
 
 namespace Mecanica.Validations.Interfaces.Veiculo
 {
-    public interface IVeiculoValidador
+    public interface IVeiculoValidation
     {
-        List<string> validador(CriarVeiculoDto dto);
+        List<string> validador(CriarVeiculoDtoRequest dto);
     }
 }

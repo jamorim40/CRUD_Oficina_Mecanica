@@ -1,8 +1,8 @@
 ﻿using Mecanica.Models.Enums;
 
-namespace Mecanica.Models.Dtos.Responses.OrdemServico
+namespace Mecanica.Models.Dtos.Requests.OrdemServico
 {
-    public class RespostaAtualizarOrdemServicoDto
+    public class AtualizarOrdemServicoDtoRequest
     {
         public DateTime? DataInicio { get; set; }
         public DateTime? DataFim { get; set; }

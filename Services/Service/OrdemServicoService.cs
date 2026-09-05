@@ -20,11 +20,11 @@ namespace Mecanica.Services.Service
             _repository = repository;
             _veiculoRepository = veiculoRepository;
         }
-        public async Task<List<RespostaCriarOrdemServicoDto>> ObterTodos()
+        public async Task<List<CriarOrdemServicoDtoResponse>> ObterTodos()
         {
             var ordemServico = await _repository.ObterTodos();
 
-            return ordemServico.Select(o => new RespostaCriarOrdemServicoDto
+            return ordemServico.Select(o => new CriarOrdemServicoDtoResponse
             {
                 Placa = o.Veiculo!.Placa,
                 Romaneio = o.Romaneio,
@@ -38,15 +38,15 @@ namespace Mecanica.Services.Service
                 Status = o.Status.ObterDescricao(),
             }).ToList();
         }
-        public async Task<List<RespostaCriarOrdemServicoDto>> ObterPorPlaca(string placa)
+        public async Task<List<CriarOrdemServicoDtoResponse>> ObterPorPlaca(string placa)
         {
             placa = PlacaNormalizado.Normalizar(placa);
             var ordemServico = await _repository.ObterPorPlaca(placa);
 
             if (!ordemServico.Any())
-                return new List<RespostaCriarOrdemServicoDto>();
+                return new List<CriarOrdemServicoDtoResponse>();
 
-            return ordemServico.Select(o => new RespostaCriarOrdemServicoDto
+            return ordemServico.Select(o => new CriarOrdemServicoDtoResponse
             {
                 Placa = o.Veiculo!.Placa,
                 Romaneio = o.Romaneio,
@@ -61,14 +61,14 @@ namespace Mecanica.Services.Service
             }).ToList();
 
         }
-        public async Task<ResultadoServico<RespostaCriarOrdemServicoDto>> CriarAsync(RequisicaoCriarOrdemServicoDto dto)
+        public async Task<ResultadoServico<CriarOrdemServicoDtoResponse>> CriarAsync(CriarOrdemServicoDtoRequest dto)
         {
             dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
 
             var veiculos = await _veiculoRepository.ObterPorPlaca(dto.Placa);
 
             if (veiculos is null)
-                return new ResultadoServico<RespostaCriarOrdemServicoDto>
+                return new ResultadoServico<CriarOrdemServicoDtoResponse>
                 {
                     Sucesso = false,
                     Mensagem = $"Veículo {dto.Placa} não encontrado."
@@ -79,13 +79,13 @@ namespace Mecanica.Services.Service
                 VeiculoId = veiculos.Id,
                 Descricao = dto.Descricao,
                 Observacao = dto.Observacao,
-                Status = EnumStatusOrdemServico.Aberto
+                Status = StatusOrdemServicoEnums.Aberto
             };
             ordemServico = await _repository.CriarAsync(ordemServico);
-            return new ResultadoServico<RespostaCriarOrdemServicoDto>
+            return new ResultadoServico<CriarOrdemServicoDtoResponse>
             {
                 Sucesso = true,
-                Conteudo = new RespostaCriarOrdemServicoDto
+                Conteudo = new CriarOrdemServicoDtoResponse
                 {
                     Placa = veiculos.Placa,
                     Marca = veiculos.Marca,
@@ -99,20 +99,20 @@ namespace Mecanica.Services.Service
             };
         }
 
-        public async Task<ResultadoServico<RespostaAtualizarOrdemServicoDto>> AtualizarAsync(int  romaneio,RequisicaoAtualizarOrdemServicoDto dto)
+        public async Task<ResultadoServico<AtualizarOrdemServicoDtoResponse>> AtualizarAsync(int  romaneio,AtualizarOrdemServicoDtoRequest dto)
         {
             var ordemServico = await _repository.ObterPorRomaneio(romaneio);
 
             if (ordemServico is null)
             {
-                return new ResultadoServico<RespostaAtualizarOrdemServicoDto>
+                return new ResultadoServico<AtualizarOrdemServicoDtoResponse>
                 {
                     Sucesso = false,
                     Mensagem = $"Romaneio {romaneio} não encontrado."
                 };
             }
 
-                ordemServico.Status = NormalizarStatusOrdemServico.ObterStatus(dto.Status);
+                ordemServico.Status = StatusOrdemServicoNormalized.ObterStatus(dto.Status);
 
                 ordemServico.Observacao = dto.Observacao;
 
@@ -123,10 +123,10 @@ namespace Mecanica.Services.Service
 
             ordemServico = await _repository.AtualizarAsync(ordemServico);
 
-            return new ResultadoServico<RespostaAtualizarOrdemServicoDto>
+            return new ResultadoServico<AtualizarOrdemServicoDtoResponse>
             {
                 Sucesso = true,
-                Conteudo = new RespostaAtualizarOrdemServicoDto
+                Conteudo = new AtualizarOrdemServicoDtoResponse
                 {
                     DataInicio = ordemServico.DataInicio,
                     DataFim = ordemServico.DataFim,

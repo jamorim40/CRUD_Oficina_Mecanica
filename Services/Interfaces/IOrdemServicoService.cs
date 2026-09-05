@@ -7,12 +7,12 @@ namespace Mecanica.Services.Interfaces
 {
     public interface IOrdemServicoService
     {
-        Task<List<RespostaCriarOrdemServicoDto>> ObterTodos();
-        Task<List<RespostaCriarOrdemServicoDto>> ObterPorPlaca(string placa);
-        Task<ResultadoServico<RespostaCriarOrdemServicoDto>> CriarAsync(RequisicaoCriarOrdemServicoDto dto);
-        Task<ResultadoServico<RespostaAtualizarOrdemServicoDto>> AtualizarAsync(
+        Task<List<CriarOrdemServicoDtoResponse>> ObterTodos();
+        Task<List<CriarOrdemServicoDtoResponse>> ObterPorPlaca(string placa);
+        Task<ResultadoServico<CriarOrdemServicoDtoResponse>> CriarAsync(CriarOrdemServicoDtoRequest dto);
+        Task<ResultadoServico<AtualizarOrdemServicoDtoResponse>> AtualizarAsync(
             int romaneio, 
-            RequisicaoAtualizarOrdemServicoDto dto);
+            AtualizarOrdemServicoDtoRequest dto);
         Task <ResultadoServico<string>>SoftDelete(int romaneio);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Mecanica.Normalizers
 {
-    public static class DocumentoNormalizado
+    public static class DocumentoNormalized
     {
         public static string Normalizar(string documento)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Mecanica.Models.Dtos.Requests.OrdemServico
 {
-    public class RequisicaoCriarOrdemServicoDto
+    public class CriarOrdemServicoDtoRequest
     {
         public string Placa { get; set; } = string.Empty;
         public string Descricao { get; set; } = string.Empty;

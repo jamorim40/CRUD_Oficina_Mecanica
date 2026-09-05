@@ -2,7 +2,7 @@
 
 namespace Mecanica.Normalizers
 {
-    public class TelefoneNormalizado
+    public class TelefoneNormalized
     {
         public static string Normalizar(string telefone)
         {

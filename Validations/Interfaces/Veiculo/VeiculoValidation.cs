@@ -2,9 +2,9 @@
 
 namespace Mecanica.Validations.Interfaces.Veiculo
 {
-    public class VeiculoValidador : IVeiculoValidador
+    public class VeiculoValidation : IVeiculoValidation
     {
-        public List<string> validador(CriarVeiculoDto dto)
+        public List<string> validador(CriarVeiculoDtoRequest dto)
         {
             List<string> erros = new();
             if (string.IsNullOrWhiteSpace(dto.Marca))

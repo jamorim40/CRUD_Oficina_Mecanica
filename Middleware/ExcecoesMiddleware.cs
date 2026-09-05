@@ -39,6 +39,10 @@ namespace Mecanica.Middleware
             {
                 contexto.Response.StatusCode = 400;
             }
+            else if (excecao is RegraNegocioException)
+            {
+                contexto.Response.StatusCode = 409;
+            }
             else
             {
                 contexto.Response.StatusCode = 500;

@@ -21,17 +21,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ClienteRepository>();
-builder.Services.AddScoped<VeiculoRepository>();
-builder.Services.AddScoped<OrdemServicoRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
-builder.Services.AddScoped<IOrdemServicoRepository, OrdemServicoRepository>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IClienteValidation, ClienteValidation>();
+builder.Services.AddScoped<VeiculoRepository>();
+builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 builder.Services.AddScoped<IVeiculoService, VeiculoService>();
+builder.Services.AddScoped<IVeiculoValidation, VeiculoValidation>();
+builder.Services.AddScoped<OrdemServicoRepository>();
+builder.Services.AddScoped<IOrdemServicoRepository, OrdemServicoRepository>();
 builder.Services.AddScoped<IOrdemServicoService, OrdemServicoService>();
-builder.Services.AddScoped<IClienteValidator, ClienteValidator>();
-builder.Services.AddScoped<IVeiculoValidador, VeiculoValidador>();
-builder.Services.AddScoped<IOrdemServicoValidator, OrdemServicoValidator>();
+builder.Services.AddScoped<IOrdemServicoValidation, OrdemServicoValidation>();
+builder.Services.AddScoped<CargoRepository>();
+builder.Services.AddScoped<ICargoRepository, CargoRepository>();
+builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<FuncionarioRepository>();
+builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
 
 
 var app = builder.Build();

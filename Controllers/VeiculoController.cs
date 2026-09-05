@@ -12,9 +12,9 @@ namespace Mecanica.Controllers
     public class VeiculoController : ControllerBase
     {
         private readonly IVeiculoService _veiculoService;
-        private readonly IVeiculoValidador _veiculoValidador;
+        private readonly IVeiculoValidation _veiculoValidador;
 
-        public VeiculoController(IVeiculoService veiculoService, IVeiculoValidador veiculoValidador)
+        public VeiculoController(IVeiculoService veiculoService, IVeiculoValidation veiculoValidador)
         {
             
             _veiculoService = veiculoService;
@@ -48,7 +48,7 @@ namespace Mecanica.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(CriarVeiculoDto dto)
+        public async Task<IActionResult> Post(CriarVeiculoDtoRequest dto)
         {
             dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
             var erros = _veiculoValidador.validador(dto);
@@ -59,7 +59,7 @@ namespace Mecanica.Controllers
         }
 
         [HttpPut("{placa}")]
-        public async Task<IActionResult> Put(string placa, AtualizarVeiculoDto dto)
+        public async Task<IActionResult> Put(string placa, AtualizarVeiculoDtoRequest dto)
         {
             dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
             await _veiculoService.AtualizarAsync(placa, dto);

@@ -15,24 +15,24 @@ namespace Mecanica.Services.Service
         {
             _repository = repository;
         }
-        public async Task<List<RespostaVeiculoDto>> ObterTodos()
+        public async Task<List<VeiculoDtoResponse>> ObterTodos()
         {
             var veiculo = await _repository.ObterTodos();
-            return veiculo.Select(c => new RespostaVeiculoDto
+            return veiculo.Select(c => new VeiculoDtoResponse
             {
                 Marca = c.Marca,
                 Modelo = c.Modelo,
                 Placa = c.Placa
             }).ToList();
         }
-        public async Task<RespostaVeiculoDto> ObterPorId(int id)
+        public async Task<VeiculoDtoResponse> ObterPorId(int id)
         {
             var veiculo = await _repository.ObterPorId(id);
             if (veiculo is null)
                 return null!;
             if (!veiculo.Ativo)
                 return null!;
-            return new RespostaVeiculoDto
+            return new VeiculoDtoResponse
             {
                 Modelo = veiculo.Modelo,
                 Marca = veiculo.Marca,
@@ -40,7 +40,7 @@ namespace Mecanica.Services.Service
             };
         }
 
-        public async Task<RespostaVeiculoDto> ObterPorPlaca(string placa)
+        public async Task<VeiculoDtoResponse> ObterPorPlaca(string placa)
         {
             placa = PlacaNormalizado.Normalizar(placa);
             var veiculo = await _repository.ObterPorPlaca(placa);
@@ -50,7 +50,7 @@ namespace Mecanica.Services.Service
             if (!veiculo.Ativo)
                 return null!;
 
-            return new RespostaVeiculoDto
+            return new VeiculoDtoResponse
             {
                 Marca = veiculo.Marca,
                 Modelo = veiculo.Modelo,
@@ -59,7 +59,7 @@ namespace Mecanica.Services.Service
             };
         }
 
-        public async Task<Veiculo> CriarAsync(CriarVeiculoDto dto)
+        public async Task<Veiculo> CriarAsync(CriarVeiculoDtoRequest dto)
         {
             var veiculo = new Veiculo()
             {
@@ -85,7 +85,7 @@ namespace Mecanica.Services.Service
         //    return await _repository.AtualizarAsync(veiculo);
 
         //}
-        public async Task<Veiculo> AtualizarAsync(string placa, AtualizarVeiculoDto dto)
+        public async Task<Veiculo> AtualizarAsync(string placa, AtualizarVeiculoDtoRequest dto)
         {
             var veiculo = await _repository.ObterPorPlaca(placa);
             if (veiculo is null)

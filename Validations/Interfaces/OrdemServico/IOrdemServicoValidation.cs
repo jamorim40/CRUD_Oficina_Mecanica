@@ -2,8 +2,8 @@
 
 namespace Mecanica.Validations.Interfaces.OrdemServico
 {
-    public interface IOrdemServicoValidator
+    public interface IOrdemServicoValidation
     {
-        List<string> validador(RequisicaoCriarOrdemServicoDto dto);
+        List<string> validador(CriarOrdemServicoDtoRequest dto);
     }
 }

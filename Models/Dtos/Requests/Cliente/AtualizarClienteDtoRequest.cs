@@ -1,6 +1,6 @@
 ﻿namespace Mecanica.Models.Dtos.Requests.Cliente
 {
-    public class AtualizarClienteDto
+    public class AtualizarClienteDtoRequest
     {
         public string Nome {  get; set; } = string.Empty;
         public string Telefone { get; set;  } = string.Empty;

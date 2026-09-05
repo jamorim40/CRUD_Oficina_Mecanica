@@ -13,11 +13,11 @@ namespace Mecanica.Controllers
     public class ClienteController : ControllerBase
     {
         private readonly IClienteService _clienteService;
-        private readonly IClienteValidator _clienteValidador;
+        private readonly IClienteValidation _clienteValidador;
 
         public ClienteController(
                 IClienteService clienteService, 
-                IClienteValidator clienteValidador)
+                IClienteValidation clienteValidador)
         {
             _clienteService = clienteService;
             _clienteValidador = clienteValidador;
@@ -42,10 +42,10 @@ namespace Mecanica.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(CriaClienteDto dto)
+        public async Task<IActionResult> Post(CriaClienteDtoRequest dto)
         {
-            dto.Telefone = TelefoneNormalizado.Normalizar(dto.Telefone);
-            dto.Email = EmailNormalizado.Normalizar(dto.Email);
+            dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
+            dto.Email = EmailNormalized.Normalizar(dto.Email);
             //dto.CpfCnpj = DocumentoValidador.ValidarCpfCnpj(dto.CpfCnpj);
 
             var erros = _clienteValidador.validador(dto);
@@ -57,10 +57,10 @@ namespace Mecanica.Controllers
         }
 
         [HttpPut("{cpfCnpj}")]
-        public async Task<IActionResult> Put(string cpfCnpj, AtualizarClienteDto dto)
+        public async Task<IActionResult> Put(string cpfCnpj, AtualizarClienteDtoRequest dto)
         {
-            dto.Telefone = TelefoneNormalizado.Normalizar(dto.Telefone);
-            dto.Email = EmailNormalizado.Normalizar(dto.Email);
+            dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
+            dto.Email = EmailNormalized.Normalizar(dto.Email);
 
             await _clienteService.AtualizarAsync(cpfCnpj, dto);
             return NoContent();

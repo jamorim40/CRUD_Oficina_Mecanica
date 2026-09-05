@@ -2,9 +2,9 @@
 
 namespace Mecanica.Validations.Interfaces.Cliente
 {
-    public class ClienteValidator : IClienteValidator
+    public class ClienteValidation : IClienteValidation
     {
-        public List<string> validador(CriaClienteDto dto)
+        public List<string> validador(CriaClienteDtoRequest dto)
         {
             List<string> erros = new();
             if (string.IsNullOrWhiteSpace(dto.Nome))

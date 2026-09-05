@@ -6,12 +6,12 @@ namespace Mecanica.Services.Interfaces
 {
     public interface IVeiculoService
     {
-        Task<List<RespostaVeiculoDto>> ObterTodos();
-        Task<RespostaVeiculoDto> ObterPorId(int id);
-        Task<RespostaVeiculoDto> ObterPorPlaca(string placa);
-        Task<Veiculo> CriarAsync(CriarVeiculoDto dto);
+        Task<List<VeiculoDtoResponse>> ObterTodos();
+        Task<VeiculoDtoResponse> ObterPorId(int id);
+        Task<VeiculoDtoResponse> ObterPorPlaca(string placa);
+        Task<Veiculo> CriarAsync(CriarVeiculoDtoRequest dto);
         //Task<Veiculo> AtualizarAsync(int id, AtualizarVeiculoDto dto);
-        Task<Veiculo> AtualizarAsync(string placa, AtualizarVeiculoDto dto);
+        Task<Veiculo> AtualizarAsync(string placa, AtualizarVeiculoDtoRequest dto);
         Task SoftDeleteAsync(string placa);
     }
 }

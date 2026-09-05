@@ -2,9 +2,9 @@
 
 namespace Mecanica.Validations.Interfaces.Cliente
 {
-    public interface IClienteValidator
+    public interface IClienteValidation
     {
-        List<string> validador(CriaClienteDto dto);
+        List<string> validador(CriaClienteDtoRequest dto);
         
     }
 }
