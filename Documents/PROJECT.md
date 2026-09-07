@@ -1,180 +1,143 @@
 # Projeto: CRUD_Oficina_Mecanica
 
-Última atualização: 2026-09-01
+Última atualização: 2026-09-05
 
-## Resumo
-API REST para gerenciamento de uma oficina mecânica com entidades principais: Cliente, Veículo e Ordem de Serviço.
+## Resumo técnico
 
-## Arquitetura
+- API REST para gestão de oficina mecânica: Clientes, Veículos, Ordens de Serviço e Cargos.
+- Implementada em .NET 10, ASP.NET Core, EF Core e SQL Server.
+- Arquitetura em camadas: Controllers → Services → Repositories → EF Core → Banco.
 
-O projeto segue a arquitetura em camadas:
+## Estrutura do repositório (pastas principais)
 
-Controller
-↓
-Service
-↓
-Repository
-↓
-Entity Framework Core
-↓
-SQL Server
+- Controllers/ — endpoints HTTP (ClienteController, VeiculoController, OrdemServicoController, CargoController)
+- Services/ — regras de negócio e interfaces (ex.: OrdemServicoService, CargoService, VeiculoService, ClienteService)
+- Repositories/ — acesso a dados (implementações e interfaces)
+- Models/ — entidades e DTOs (Requests / Responses)
+- Datas/ — AppDbContext e configuração do EF Core; migrations em /Migrations
+- Validations/ — validadores por entidade
+- Normalizers/ — PlacaNormalizado, TelefoneNormalizado, EmailNormalizado, StatusNormalizado
+- Documents/ — documentação do projeto (este documento)
+- Shared/ — ResultadoServico<T>, utilitários e extensões
 
-Principais conceitos utilizados:
+## Marcos do projeto (início → situação atual)
 
-- DTOs de Request e Response
-- Repository Pattern
-- Service Layer
-- Soft Delete
-- Normalização de dados
-- ResultadoServico<T>
-- Enum com Description
+- Marco 1 (início): criação da API base com entidades Cliente, Veículo e OrdemServico; configuração EF Core e primeira migration.
+- Marco 2 (estabilização): implementação CRUD de Cliente e Veículo, normalizadores e validações básicas; padronização de soft delete em entidades (campo Ativo).
+- Marco 3 (evolução): implementação de AtualizarAsync e SoftDelete para OrdemServico; correção de DTO Veículo (Palca → Placa); padronização SoftDeleteAsync entre layers.
+- Marco 4 (extensão): adição da entidade Cargo com controller/service/repository; migrations adicionadas para Funcionario e Usuario; repositório parcial para Funcionario.
+- Situação atual: API compilando; endpoints principais expostos; front‑end, autenticação e testes automáticos pendentes.
 
-## Estrutura do projeto
-- Controllers/ - endpoints HTTP (ClienteController, VeiculoController, OrdemServicoController)
-- Services/ - regras de negócio e interfaces (IClienteService, IVeiculoService, IOrdemServicoService)
-- Repositories/ - acesso a dados (implementações e interfaces)
-- Models/ - entidades, DTOs (Requests/Responses), enums
-- Validations/ - validadores por entidade
-- Datas/ - AppDbContext e configuração do EF Core
-- Normalizers/ - normalização de campos (Placa, Telefone, Email)
-- Shared/ - classes utilitárias/retorno comum (ex.: ResultadoServico)
-- Documents/ - documentação do projeto (este arquivo)
+## Endpoints implementados (detalhado, com identificadores corretos)
 
-## Endpoints implementados
+- Cliente (api/cliente)
+  - GET /api/cliente — listar todos (Services/Service/ClienteService.cs → ObterTodos)
+  - GET /api/cliente/{CpfCnpj} — obter por CpfCnpj (Controller: Controllers/ClienteController.cs; Service: IClienteService / ClienteService)
+  - POST /api/cliente — criar (Models/Dtos/Requests/Cliente)
+  - PUT /api/cliente/{CpfCnpj} — atualizar
+  - DELETE /api/cliente/{CpfCnpj} — soft delete (ClienteService.SoftDeleteAsync → Repositories/Repository/ClienteRepository.cs)
 
-Cliente (api/cliente)
-- GET /api/cliente - listar todos os clientes
-- GET /api/cliente/{id} - obter cliente por id
-- POST /api/cliente - criar cliente
-- PUT /api/cliente/{id} - atualizar cliente
-- DELETE /api/cliente/{id} - soft delete
+- Veículo (api/veiculo)
+  - GET /api/veiculo — listar (VeiculoService.ObterTodos)
+  - GET /api/veiculo/{placa} — obter por placa (uses PlacaNormalizado)
+  - POST /api/veiculo — criar
+  - PUT /api/veiculo/{placa} — atualizar
+  - DELETE /api/veiculo/{placa} — soft delete (VeiculoService / VeiculoRepository: SoftDeleteAsync)
 
-Veículo (api/veiculo)
-- GET /api/veiculo - listar todos os veículos
-- GET /api/veiculo/{id} - obter veículo por id
-- POST /api/veiculo - criar veículo
-- PUT /api/veiculo/{id} - atualizar veículo
-- DELETE /api/veiculo/{id} - soft delete
+- Ordem de Serviço (api/ordemservico)
+  - GET /api/ordemservico — listar (OrdemServicoService.ObterTodos)
+  - GET /api/ordemservico/placa/{placa} — listar por placa
+  - POST /api/ordemservico — criar (OrdemServicoService.CriarAsync)
+  - PUT /api/ordemservico/{romaneio} — atualizar (OrdemServicoService.AtualizarAsync)
+  - DELETE /api/ordemservico/{romaneio} — soft delete (OrdemServicoService.SoftDelete)
 
-Ordem de Serviço (api/ordemservico)
-- GET /api/ordemservico - listar todas as ordens
-- GET /api/ordemservico/{placa} - listar ordens por placa
-- POST /api/ordemservico - criar ordem de serviço
-- PUT /api/ordemservico/{romaneio} - atualizar ordem de serviço (status, datas, observação)
-- DELETE /api/ordemservico/{romaneio} - soft delete 
+- Cargo (api/cargo)
+  - GET /api/cargo — listar (CargoService.ObterTodos)
+  - GET /api/cargo/{nome} — obter por nome
+  - POST /api/cargo — criar
+  - DELETE /api/cargo/{nome} — soft delete (valida vínculo via FuncionarioRepository.ExisteFuncionarioPorCargo)
 
-## Endpoints / funcionalidades pendentes
-- GET /api/ordemservico/{romaneio} - obter ordem por romaneio (implementar se necessário)
-- Paginação e filtros para listagens (clientes, veículos, ordens)
-- Autenticação e autorização (JWT / Identity)
+- Observação: controllers para Funcionario e Usuario não existem; apenas modelos, migrations e repositório parcial (FuncionarioRepository) estão presentes.
 
-## Regras de Negócio
+## Implementações recentes (resumidas com referências)
 
-### Cliente
-- Exclusão por Soft Delete
+- OrdemServicoService: AtualizarAsync e SoftDelete implementados (Services/Service/OrdemServicoService.cs).
+- Correções: RespostaVeiculoDto.Placa corrigido e mapeamentos atualizados (Models/Dtos/Responses/Veiculo/RespostaVeiculoDto.cs; Services/Service/VeiculoService.cs).
+- Padronização SoftDeleteAsync: IVeiculoRepository / IVeiculoService / VeiculoRepository / VeiculoService / VeiculoController atualizados.
+- Cargo: controller/service/repository implementados (Controllers/CargoController.cs; Services/Service/CargoService.cs; Repositories/Repository/CargoRepository.cs).
+- Migrations: AddCargoFuncionarioUsuario (Migrations/20260904233837_...).
 
-### Veículo
-- Placa normalizada antes de persistir
+## Problemas detectados e ações tomadas
 
-### Ordem de Serviço
-- Criação baseada na placa
-- Associação automática ao VeiculoId
-- Atualização por Romaneio
-- Exclusão por Soft Delete
-- Status armazenado como enum e exibido como texto
+- Typo original em DTO Veículo (Palca) — corrigido (breaking change no JSON).
+- Métodos NotImplementedException removidos; revisado e implementado ExistsAsync ou removido conforme interface atual.
+- Parametrização de rotas alterada (Cliente por CpfCnpj; Veículo por placa) — refletido em controllers e README/PROJECT.
 
-## Possíveis Melhorias
-- Logging estruturado (Serilog) e correlação de requisições.
+## Funcionalidades pendentes e melhorias (detalhado)
 
-- Documentação Swagger mais completa (ex.: examples, responses, versões de API).
-- Mapear DTOs com AutoMapper para reduzir código de transformação.
-- Cobertura de testes unitários e de integração (xUnit/NUnit) para services e controllers.
-- Dockerfile e docker-compose para facilitar execução local/produção.
-- Políticas de retry/transações ao interagir com banco de dados quando necessário.
-- Migrations do EF Core versionadas e procedimento de deploy seguro.
+- Autenticação e autorização:
+  - Implementar Identity ou JWT; tela de login (front‑end) e endpoints de autenticação (Usuario).
+- Entidades/Controllers faltantes:
+  - Implementar Controller/Service para Funcionario e Usuario (CRUD, login, associação com Cargo).
+- Qualidade e produção:
+  - Middleware global de exceções; centralizar mensagens e códigos HTTP.
+  - Logging estruturado (Serilog) e correlação de requisições.
+  - Testes: unitários (services/validators) e integração (endpoints/repositories); incluir xUnit/NUnit e cobertura mínima.
+  - CI/CD: GitHub Actions para build/test/deploy.
+  - Dockerfile e docker-compose para ambiente local.
+- APIs e UX:
+  - Paginação, filtros e ordenação nas listagens (clientes, veículos, ordens).
+  - Exportação/relatórios (CSV/PDF).
+  - Versão de API (v1/v2) quando breaking changes forem publicados.
+- Banco de dados:
+  - Políticas de retenção/arquivamento para soft deletes; histórico/auditoria (createdBy/updatedBy/deletedBy) se necessário.
 
-## Checklist
+## Checklist detalhado (feito vs a fazer)
 
-Feito
-- Estrutura básica do projeto criada (Controllers, Services, Repositories, Models)
-- Endpoints CRUD básicos para Cliente e Veículo implementados
-- Endpoints: listar, criar, atualizar e soft delete de Ordem de Serviço implementados
-- Swagger configurado (AddSwaggerGen)
+- Feito
+  - Estrutura básica (Controllers/Services/Repositories/Models) — OK
+  - CRUD Cliente e Veículo — OK (identificadores: CpfCnpj / placa)
+  - Ordens de Serviço: criar, listar, atualizar, soft delete — OK
+  - Cargo: controller/service/repository — OK
+  - Normalizadores implementados (Placa, Telefone, Email, Status) — OK
+  - Correções de typos e remoção de NotImplementedException — OK
+  - Build local: compilação bem‑sucedida — OK
+- A fazer
+  - Controllers/Services para Funcionario e Usuario
+  - Autenticação (login) e autorização por roles
+  - Middleware global de exceções e padronização de erros
+  - Logging estruturado (Serilog) e política de logs
+  - Testes unitários e de integração; integração a CI
+  - Paginação/filtros e endpoints de relatório/exportação
+  - Docker e processo de deploy documentado
+  - Documentação Swagger ampliada (examples, responses)
 
-Correções realizadas no código (refletidas no repositório):
-- Implementado ExistsAsync / removida NotImplementedException residual em repositórios.
-- Corrigido typo no DTO de resposta de veículo: Palca → Placa (contratos e mapeamentos atualizados).
-- Padronizado método de soft delete: SoftDeleteAsync em repositórios, services e controllers.
-- Corrigido typo em nomes de listagem de ordens: ObeterTodos → ObterTodos.
-- Removidas ocorrências de NotImplementedException após implementar os métodos necessários.
+## Riscos e recomendações
 
-Faltando / Próximas tarefas
-- Implementar/validar endpoints adicionais (GET por romaneio/id se necessário)
-- Centralizar tratamento de erros e logging
-- Criar/rodar testes automatizados (unitários e integração) focados em: criação, atualização e soft delete de ordens
-- Validations: reforçar mensagens e códigos HTTP apropriados
+- Breaking changes: Palca → Placa alterou formato JSON; comunicar consumidores e versionar API quando publicar.
+- Soft delete: sem política de auditoria atual; definir procedimento para restore / retenção.
+- Migrations: manter migrations versionadas e documentar processo de deploy/DB update.
+- Recomendação imediata: criar branch de release e não publicar breaking changes sem versionamento; implementar testes antes de expor publicamente a API.
 
-## Roadmap
+## Procedimento para atualização do documento
 
-Fase 1 
-- API REST
+- Política sugerida: atualizar Documents/PROJECT.md em cada commit que modifica comportamento/contract da API (endpoints, DTOs, migrations).
+- Incluir no documento:
+  - Data
+  - Hash do commit (opcional)
+  - Resumo das mudanças
+  - Impacto (breaking / non-breaking)
+- Sugestão: automatizar checklist no CI para verificar que PROJECT.md foi atualizado quando PR alterar contratos públicos.
 
-Fase 2
-- Middleware Global de Exceções
-- JWT
-- Autorização
+## Roadmap (curto e médio prazo)
 
-Fase 3
-- Blazor
+- Curto (0–4 semanas): implementar controllers/services para Funcionario/Usuario; middleware de exceções; testes básicos.
+- Médio (1–3 meses): autenticação/authorization; front‑end Blazor (telas principais); CI/CD; relatórios.
+- Longo (3+ meses): monitoramento, auditoria e melhorias de performance.
 
-Fase 4
-- Relatórios
+## Histórico resumido (últimas entradas)
 
-## Backlog pós-API (Blazor)
+- 2026-09-05: Atualizar/SoftDelete em OrdemServico implementados; SoftDeleteAsync padronizado; Placa corrigida; Cargo implementado; migrations Funcionario/Usuario adicionadas; build OK.
+- 2026-08-30: Backlog Blazor consolidado; padronizações iniciais aplicadas.
 
-Após a conclusão da API, implementar uma aplicação front-end usando Blazor. Escopo inicial das telas e funcionalidades:
-
-- Tela de Cliente (CRUD): cadastro/edição/remoção (soft delete) de clientes, busca e listagem com paginação e filtros.
-- Tela de Funcionários (CRUD): cadastro de funcionários, perfis e associação com permissões.
-- Tela de Permissões: gerenciamento de roles/permissões, atribuição a usuários/funcionários.
-- Tela de Ordem de Serviço (CRUD): criação de ordens, atribuição a funcionário, alteração de status, histórico e anexos (se necessário).
-- Relatórios: geração de relatórios (por período, por funcionário, por veículo/placa, por status) com opção de exportar (PDF/CSV).
-- Tela de Login / Autenticação: página de login para acessar o sistema; implementar autenticação (Identity ou JWT) e fluxo de autorização por permissões/roles.
-
-Notas técnicas iniciais:
-- Avaliar Blazor Server vs Blazor WebAssembly (hosted) conforme requisitos de escala e tempo de resposta.
-- Proteger rotas usando autorização e claims; implementar refresh token se usar JWT.
-- Integrar chamadas HTTP à API com HttpClient e tratamento centralizado de erros/timeout.
-- Considerar componentes reutilizáveis e design system (ex.: MudBlazor, Radzen ou Bootstrap customizado).
-
-## Novas implementações
-
-- Ordem de Serviço
-  - Implementado AtualizarAsync(romaneio, dto) em Services/Service/OrdemServicoService.cs e exposto via PUT /api/ordemservico/{romaneio} no controller.
-  - Implementado SoftDelete(romaneio) em Services/Service/OrdemServicoService.cs e exposto via DELETE /api/ordemservico/{romaneio} no controller.
-
-- Veículo
-  - Padronizado SoftDeleteAsync em repository/service/controller e corrigidos mapeamentos de Placa.
-
-- Cliente
-  - SoftDeleteAsync implementado e fluxo de atualização consistente entre service/repository/controller.
-
-- Repositórios
-  - Removidas ocorrências de NotImplementedException; métodos de CRUD essenciais implementados.
-
-## Build
-
-- Ação executada: build do projeto (dotnet build / Visual Studio).
-- Resultado: compilação bem-sucedida.
-
-Atualize-me se deseja que eu adicione o status do build no histórico com o hash do commit, ou que eu crie uma entry no CHANGELOG com essas implementações.
-
-## Observação
-
-## Histórico de atualizações
-
-- 2026-09-01: Atualizado documento a pedido do responsável; refletidas correções de código (typos e padronizações) e status atual do projeto. Build não executado nesta atualização.
-- 2026-08-30: Atualizado documento com seção 'Backlog pós-API (Blazor)' contendo telas (Cliente, Funcionários, Permissões, Ordem de Serviço, Relatórios) e tela de Login; notas técnicas iniciais adicionadas.
-- 2026-08-30: Corrigidas pendências apontadas na revisão de código: implemented ExistsAsync, corrigido Palca→Placa, padronizado SoftDeleteAsync, corrigido ObeterTodos→ObterTodos e removidas NotImplementedException residuais.
-
-Observação: este documento deve ser atualizado a cada commit quando houver mudanças relevantes. Para atualizar, edite este arquivo e registre a data e as alterações realizadas.
+Fim do documento.
