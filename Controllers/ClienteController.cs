@@ -69,7 +69,6 @@ namespace Mecanica.Controllers
         [HttpDelete("{cpfCnpj}")]
         public async Task<IActionResult> Delete(string cpfCnpj)
         {
-            //return Ok(cpfCnpj);
             try
             {
 

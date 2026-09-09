@@ -1,12 +1,6 @@
 using Mecanica.Datas;
+using Mecanica.Extensions;
 using Mecanica.Middleware;
-using Mecanica.Repositories.Interfaces;
-using Mecanica.Repositories.Repository;
-using Mecanica.Services.Interfaces;
-using Mecanica.Services.Service;
-using Mecanica.Validations.Interfaces.Cliente;
-using Mecanica.Validations.Interfaces.OrdemServico;
-using Mecanica.Validations.Interfaces.Veiculo;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,23 +14,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<ClienteRepository>();
-builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddScoped<IClienteValidation, ClienteValidation>();
-builder.Services.AddScoped<VeiculoRepository>();
-builder.Services.AddScoped<IVeiculoRepository, VeiculoRepository>();
-builder.Services.AddScoped<IVeiculoService, VeiculoService>();
-builder.Services.AddScoped<IVeiculoValidation, VeiculoValidation>();
-builder.Services.AddScoped<OrdemServicoRepository>();
-builder.Services.AddScoped<IOrdemServicoRepository, OrdemServicoRepository>();
-builder.Services.AddScoped<IOrdemServicoService, OrdemServicoService>();
-builder.Services.AddScoped<IOrdemServicoValidation, OrdemServicoValidation>();
-builder.Services.AddScoped<CargoRepository>();
-builder.Services.AddScoped<ICargoRepository, CargoRepository>();
-builder.Services.AddScoped<ICargoService, CargoService>();
-builder.Services.AddScoped<FuncionarioRepository>();
-builder.Services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
+builder.Services.AddInjecaoDependencias();
+
 
 
 var app = builder.Build();

@@ -74,6 +74,9 @@ namespace Mecanica.Datas
             });
 
             //Funcionario
+            //Sequencia para crachá (valor gerado pelo banco, sequencial)
+            modelBuilder.HasSequence<int>("MatriculaSequence").StartsAt(1).IncrementsBy(1);
+           
             modelBuilder.Entity<Funcionario>(entity =>
             {
                 entity.HasKey(x => x.Id);
@@ -83,6 +86,8 @@ namespace Mecanica.Datas
                 entity.HasIndex(x => x.CpfCnpj).IsUnique();
                 entity.Property(x => x.Telefone).HasMaxLength(20).IsRequired();
                 entity.Property(x => x.Email).HasMaxLength(150);
+                entity.HasIndex(x => x.Matricula).IsUnique();
+                entity.Property(x => x.Matricula).HasDefaultValueSql("NEXT VALUE FOR MatriculaSequence");
                 entity.HasOne(x => x.Cargo).WithMany().HasForeignKey(x => x.CargoId).OnDelete(DeleteBehavior.Restrict);
             });
 

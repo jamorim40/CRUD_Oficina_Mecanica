@@ -47,7 +47,7 @@ namespace Mecanica.Repositories.Repository
 
         public async Task SoftDeleteAsync(string placa)
         {
-            var veiculo = await _appDbContext.Veiculos.FirstOrDefaultAsync(c => c.Placa == placa);
+            var veiculo = await _appDbContext.Veiculos.FirstOrDefaultAsync(v => v.Placa == placa);
             if (veiculo is null)
                 return;
             veiculo.Ativo = false;

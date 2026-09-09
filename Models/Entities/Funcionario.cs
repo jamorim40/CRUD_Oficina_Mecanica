@@ -9,6 +9,7 @@ namespace Mecanica.Models.Entities
         public string Telefone { get; set; } = string.Empty;
         public string Email {  get; set; } = string.Empty;
         public int CargoId {  get; set; }
+        public int Matricula { get; set; }
         public Cargo? Cargo { get; set; }
         public Usuario? Usuario { get; set; }
     }

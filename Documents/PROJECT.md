@@ -69,7 +69,6 @@
 
 ## Problemas detectados e ações tomadas
 
-- Typo original em DTO Veículo (Palca) — corrigido (breaking change no JSON).
 - Métodos NotImplementedException removidos; revisado e implementado ExistsAsync ou removido conforme interface atual.
 - Parametrização de rotas alterada (Cliente por CpfCnpj; Veículo por placa) — refletido em controllers e README/PROJECT.
 
