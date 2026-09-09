@@ -5,6 +5,7 @@ using Mecanica.Models.Dtos.Responses.Cliente;
 using Mecanica.Models.Entities;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Services.Interfaces;
+using Mecanica.Shared;
 
 namespace Mecanica.Services.Service
 {
@@ -27,52 +28,56 @@ namespace Mecanica.Services.Service
             }).ToList();
         }
 
-        public async Task<CargoDtoResponse> ObterPorNome(string nome)
+        public async Task<ResultadoServico<CargoDtoResponse>> ObterPorNome(string nome)
         {
             var cargo = await _cargoRepository.ObterPorNome(nome);
             if (cargo is null)
-                return null!;
+                return ResultadoServico<CargoDtoResponse>.Falha($"Cargo: {nome} não encontrado.", 404);
             if (!cargo.Ativo)
-                return null!;
+                return ResultadoServico<CargoDtoResponse>.Falha("Cargo inativo.", 400);
 
-            return new CargoDtoResponse
+            var dto = new CargoDtoResponse
             {
                 Nome = cargo.Nome,
-              
             };
+
+            return ResultadoServico<CargoDtoResponse>.Ok(dto, "Ok", 200);
         }
 
-        public async Task<Cargo> CriarAsync(CriarCargoDtoRequest dto)
+        public async Task<ResultadoServico<CargoDtoResponse>> CriarAsync(CriarCargoDtoRequest dto)
         {
-            var cargo = await _cargoRepository.ObterPorNome(dto.Nome);
-            if (cargo is not null)
+            var existente = await _cargoRepository.ObterPorNome(dto.Nome);
+            if (existente is not null)
             {
-                throw new RegraNegocioException($" O cargo '{dto.Nome}' já existe.");
+                return ResultadoServico<CargoDtoResponse>.Falha($"O cargo '{dto.Nome}' já existe.", 409);
             }
-           cargo = new Cargo
+
+            var cargo = new Cargo
             {
                 Nome = dto.Nome,
             };
-                
-           return await _cargoRepository.CriarAsync(cargo);
+
+            var criado = await _cargoRepository.CriarAsync(cargo);
+            var resposta = new CargoDtoResponse { Nome = criado.Nome };
+            return ResultadoServico<CargoDtoResponse>.Ok(resposta, "Criado", 201);
         }
 
-
-        public async Task SoftDelete(string nome)
+        public async Task<ResultadoServico<string>> SoftDelete(string nome)
         {
             var cargo = await _cargoRepository.ObterPorNome(nome);
 
             if (cargo is null)
-                throw new NaoEncontradoException($"Cargo {nome} não encontrado. ");
+                return ResultadoServico<string>.Falha($"Cargo {nome} não encontrado.", 404);
 
             var possuiFuncionarios = await _funcionarioRepository.ExisteFuncionarioPorCargo(cargo.Id);
 
             if (possuiFuncionarios)
             {
-                throw new RegraNegocioException("Não é possivel excluir um cargo vinculado a funcionários.");
+                return ResultadoServico<string>.Falha("Não é possivel excluir um cargo vinculado a funcionários.", 409);
             }
 
             await _cargoRepository.SoftDelete(nome);
+            return ResultadoServico<string>.Ok(null, "Excluído", 204);
         }
 
     }

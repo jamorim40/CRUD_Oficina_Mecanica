@@ -2,6 +2,7 @@
 using Mecanica.Models.Dtos.Requests.Funcionario;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
+using Mecanica.Shared;
 using Mecanica.Validations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,12 +30,8 @@ namespace Mecanica.Controllers
         [HttpGet("{matricula}")]
         public async Task<IActionResult> GetById(int matricula)
         {
-            var funcioanrio = await _funcionarioService.ObterPorMatricula(matricula);
-
-            if (funcioanrio is null)
-                throw new NaoEncontradoException($"Funcionário de matrícula: {matricula} não encontrado.");
-
-            return Ok(funcioanrio);
+            var resultado = await _funcionarioService.ObterPorMatricula(matricula);
+            return resultado.ToActionResult(this);
         }
 
         [HttpPost]
@@ -47,8 +44,8 @@ namespace Mecanica.Controllers
             if (!DocumentoValidation.ValidarCpfCnpj(dto.CpfCnpj))
                 return BadRequest("Cpf/Cnpj inválido.");
             
-            await _funcionarioService.CriarAsync(dto);
-            return Ok(dto);
+            var resultado = await _funcionarioService.CriarAsync(dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpPut("{matricula}")]
@@ -61,22 +58,15 @@ namespace Mecanica.Controllers
             if (!DocumentoValidation.ValidarCpfCnpj(dto.CpfCnpj))
                 return BadRequest("Cpf/Cnpj inválido.");
 
-            await _funcionarioService.AtualizarAsync(matricula, dto);
-            return Ok(dto);
+            var resultado = await _funcionarioService.AtualizarAsync(matricula, dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpDelete("{matricula}")]
         public async Task<IActionResult> Delete(int matricula)
         {
-            try
-            {
-                await _funcionarioService.SoftDeleteAsync(matricula);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var resultado = await _funcionarioService.SoftDeleteAsync(matricula);
+            return resultado.ToActionResult(this);
         }
     }
 }

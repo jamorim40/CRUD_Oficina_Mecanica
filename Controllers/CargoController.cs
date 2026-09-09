@@ -3,7 +3,7 @@ using Mecanica.Models.Dtos.Requests.Cargo;
 using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
-using Mecanica.Services.Service;
+using Mecanica.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,26 +29,22 @@ namespace Mecanica.Controllers
         [HttpGet("{nome}")]
         public async Task<IActionResult> GetByNome(string nome)
         {
-            var cargo = await _cargoService.ObterPorNome(nome);
-
-            if (cargo is null)
-                throw new NaoEncontradoException($"Cargo: {nome} não encontrado.");
-
-            return Ok(cargo);
+            var resultado = await _cargoService.ObterPorNome(nome);
+            return resultado.ToActionResult(this);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post(CriarCargoDtoRequest dto)
         {
-            await _cargoService.CriarAsync(dto);
-            return Ok(dto);
+            var resultado = await _cargoService.CriarAsync(dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpDelete("{nome}")]
         public async Task<IActionResult> Delete(string nome)
         {
-            await _cargoService.SoftDelete(nome);
-            return NoContent();
+            var resultado = await _cargoService.SoftDelete(nome);
+            return resultado.ToActionResult(this);
         }
     }
 }

@@ -1,0 +1,83 @@
+using Mecanica.Exceptions;
+using Mecanica.Models.Dtos.Requests.Veiculo;
+using Mecanica.Normalizers;
+using Mecanica.Services.Interfaces;
+using Mecanica.Validations.Interfaces.Veiculo;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Mecanica.Controllers
+{
+	[Route("api/[controller]")]
+	[ApiController]
+	public class VeiculoController : ControllerBase
+	{
+		private readonly IVeiculoService _veiculoService;
+		private readonly IVeiculoValidation _veiculoValidador;
+
+		public VeiculoController(IVeiculoService veiculoService, IVeiculoValidation veiculoValidador)
+		{
+
+			_veiculoService = veiculoService;
+			_veiculoValidador = veiculoValidador;
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> Get()
+		{
+			var veiculo = await _veiculoService.ObterTodos();
+			return Ok(veiculo);
+		}
+
+		//[HttpGet("{id}")]
+		//public async Task<IActionResult> GetbyId(int id)
+		//{
+		//    var veiculo = await _veiculo_service.ObterPorId(id);
+		//    if (veiculo is null)
+		//        //return NotFound("Veiculo não encontrado ou inativo.");
+		//        throw new NaoEncontradoException($"Veículo de Id: {id} não encontrado.");
+		//    return Ok(veiculo);
+		//}
+
+		[HttpGet("{placa}")]
+		public async Task<IActionResult> GetByPlaca(string placa)
+		{
+			var veiculo = await _veiculo_service.ObterPorPlaca(placa);
+			if (veiculo is null)
+				throw new NaoEncontradoException($"Veículo de placa {placa} não encontrado. ");
+			return Ok(veiculo);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Post(CriarVeiculoDtoRequest dto)
+		{
+			dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
+			var erros = _veiculoValidador.validador(dto);
+			if (erros.Any())
+				return BadRequest(erros);
+			await _veiculo_service.CriarAsync(dto);
+			return Ok();
+		}
+
+		[HttpPut("{placa}")]
+		public async Task<IActionResult> Put(string placa, AtualizarVeiculoDtoRequest dto)
+		{
+			dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
+			await _veiculo_service.AtualizarAsync(placa, dto);
+			return NoContent();
+		}
+
+		[HttpDelete("{placa}")]
+		public async Task<IActionResult> Delete(string placa)
+		{
+			try
+			{
+				await _veiculo_service.SoftDeleteAsync(placa);
+				return NoContent();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
+	}
+}

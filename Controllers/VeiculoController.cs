@@ -2,6 +2,7 @@
 using Mecanica.Models.Dtos.Requests.Veiculo;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
+using Mecanica.Shared;
 using Mecanica.Validations.Interfaces.Veiculo;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,10 +42,8 @@ namespace Mecanica.Controllers
         [HttpGet("{placa}")]
         public async Task<IActionResult> GetByPlaca(string placa)
         {
-            var veiculo = await _veiculoService.ObterPorPlaca(placa);
-            if (veiculo is null)
-                throw new NaoEncontradoException($"Veículo de placa {placa} não encontrado. ");
-            return Ok(veiculo);
+            var resultado = await _veiculoService.ObterPorPlaca(placa);
+            return resultado.ToActionResult(this);
         }
 
         [HttpPost]
@@ -54,30 +53,23 @@ namespace Mecanica.Controllers
             var erros = _veiculoValidador.validador(dto);
             if (erros.Any())
                 return BadRequest(erros);
-            await _veiculoService.CriarAsync(dto);
-            return Ok();
+            var resultado = await _veiculoService.CriarAsync(dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpPut("{placa}")]
         public async Task<IActionResult> Put(string placa, AtualizarVeiculoDtoRequest dto)
         {
             dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
-            await _veiculoService.AtualizarAsync(placa, dto);
-            return NoContent();
+            var resultado = await _veiculoService.AtualizarAsync(placa, dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpDelete("{placa}")]
         public async Task<IActionResult> Delete(string placa)
         {
-            try
-            {
-                await _veiculoService.SoftDeleteAsync(placa);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var resultado = await _veiculoService.SoftDeleteAsync(placa);
+            return resultado.ToActionResult(this);
         }
     }
 }

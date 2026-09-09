@@ -2,6 +2,7 @@
 using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
+using Mecanica.Shared;
 using Mecanica.Validations;
 using Mecanica.Validations.Interfaces.Cliente;
 using Microsoft.AspNetCore.Mvc;
@@ -52,8 +53,8 @@ namespace Mecanica.Controllers
             if (erros.Any())
                 return BadRequest(erros);
 
-            await _clienteService.CriarAsync(dto);
-            return Ok();
+            var resultado = await _clienteService.CriarAsync(dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpPut("{cpfCnpj}")]
@@ -62,23 +63,15 @@ namespace Mecanica.Controllers
             dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
             dto.Email = EmailNormalized.Normalizar(dto.Email);
 
-            await _clienteService.AtualizarAsync(cpfCnpj, dto);
-            return NoContent();
+            var resultado = await _clienteService.AtualizarAsync(cpfCnpj, dto);
+            return resultado.ToActionResult(this);
         }
 
         [HttpDelete("{cpfCnpj}")]
         public async Task<IActionResult> Delete(string cpfCnpj)
         {
-            try
-            {
-
-                await _clienteService.SoftDeleteAsync(cpfCnpj);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var resultado = await _clienteService.SoftDeleteAsync(cpfCnpj);
+            return resultado.ToActionResult(this);
         }
 
     }

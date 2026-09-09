@@ -5,6 +5,7 @@ using Mecanica.Models.Entities;
 using Mecanica.Normalizers;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Services.Interfaces;
+using Mecanica.Shared;
 
 namespace Mecanica.Services.Service
 {
@@ -40,26 +41,26 @@ namespace Mecanica.Services.Service
             };
         }
 
-        public async Task<VeiculoDtoResponse> ObterPorPlaca(string placa)
+        public async Task<ResultadoServico<VeiculoDtoResponse>> ObterPorPlaca(string placa)
         {
             placa = PlacaNormalizado.Normalizar(placa);
             var veiculo = await _repository.ObterPorPlaca(placa);
-
             if (veiculo is null)
-                return null!;
+                return ResultadoServico<VeiculoDtoResponse>.Falha($"Veículo de placa {placa} não encontrado.", 404);
             if (!veiculo.Ativo)
-                return null!;
+                return ResultadoServico<VeiculoDtoResponse>.Falha("Veículo inativo.", 400);
 
-            return new VeiculoDtoResponse
+            var dto = new VeiculoDtoResponse
             {
                 Marca = veiculo.Marca,
                 Modelo = veiculo.Modelo,
                 Placa = veiculo.Placa
-
             };
+
+            return ResultadoServico<VeiculoDtoResponse>.Ok(dto, "Ok", 200);
         }
 
-        public async Task<Veiculo> CriarAsync(CriarVeiculoDtoRequest dto)
+        public async Task<ResultadoServico<VeiculoDtoResponse>> CriarAsync(CriarVeiculoDtoRequest dto)
         {
             var veiculo = new Veiculo()
             {
@@ -68,7 +69,16 @@ namespace Mecanica.Services.Service
                 Modelo = dto.Modelo,
                 Placa = dto.Placa
             };
-            return await _repository.CriarVeiculoAsync(veiculo);
+            var criado = await _repository.CriarVeiculoAsync(veiculo);
+
+            var resposta = new VeiculoDtoResponse
+            {
+                Marca = criado.Marca,
+                Modelo = criado.Modelo,
+                Placa = criado.Placa
+            };
+
+            return ResultadoServico<VeiculoDtoResponse>.Ok(resposta, "Criado", 201);
         }
 
         //public async Task<Veiculo> AtualizarAsync(int id, AtualizarVeiculoDto dto)
@@ -85,30 +95,42 @@ namespace Mecanica.Services.Service
         //    return await _repository.AtualizarAsync(veiculo);
 
         //}
-        public async Task<Veiculo> AtualizarAsync(string placa, AtualizarVeiculoDtoRequest dto)
+        public async Task<ResultadoServico<VeiculoDtoResponse>> AtualizarAsync(string placa, AtualizarVeiculoDtoRequest dto)
         {
             var veiculo = await _repository.ObterPorPlaca(placa);
             if (veiculo is null)
-                throw new NaoEncontradoException("Veículo não encontrado.");
+                return ResultadoServico<VeiculoDtoResponse>.Falha("Veículo não encontrado.", 404);
 
             var veiculoEncontrado = veiculo;
             if (!veiculoEncontrado.Ativo)
-                throw new Exception("Veículo inativo");
+                return ResultadoServico<VeiculoDtoResponse>.Falha("Veículo inativo.", 400);
+
             veiculoEncontrado.Marca = dto.Marca;
             veiculoEncontrado.Modelo = dto.Modelo;
             veiculoEncontrado.Placa = dto.Placa;
-            return await _repository.AtualizarAsync(veiculoEncontrado);
+
+            var atualizado = await _repository.AtualizarAsync(veiculoEncontrado);
+
+            var resposta = new VeiculoDtoResponse
+            {
+                Marca = atualizado.Marca,
+                Modelo = atualizado.Modelo,
+                Placa = atualizado.Placa
+            };
+
+            return ResultadoServico<VeiculoDtoResponse>.Ok(resposta, "Atualizado", 200);
             //throw new NotImplementedException();
         }
 
-        public async Task SoftDeleteAsync(string placa)
+        public async Task<ResultadoServico<string>> SoftDeleteAsync(string placa)
         {
             var veiculo = await _repository.ObterPorPlaca(placa);
             if (veiculo is null)
-                throw new Exception("Veículo não encontrado. ");
+                return ResultadoServico<string>.Falha("Veículo não encontrado.", 404);
             if (!veiculo.Ativo)
-                throw new Exception("Veículo inativo.");
+                return ResultadoServico<string>.Falha("Veículo inativo.", 400);
             await _repository.SoftDeleteAsync(placa);
+            return ResultadoServico<string>.Ok(null, "Excluído", 204);
         }
 
 

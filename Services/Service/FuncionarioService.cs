@@ -31,16 +31,16 @@ namespace Mecanica.Services.Service
 
             }).ToList();
         }
-        public async Task<FuncionarioDtoResponse> ObterPorMatricula(int matricula)
+        public async Task<ResultadoServico<FuncionarioDtoResponse>> ObterPorMatricula(int matricula)
         {
             var funcionario = await _repository.ObterPorMatricula(matricula);
 
             if (funcionario is null)
-                throw new NaoEncontradoException($"Funcionário de matricula: {matricula} não encontrado.");
+                return ResultadoServico<FuncionarioDtoResponse>.Falha($"Funcionário de matricula: {matricula} não encontrado.", 404);
             if (!funcionario.Ativo)
-                throw new Exception("Funcionário está inativo.");
+                return ResultadoServico<FuncionarioDtoResponse>.Falha("Funcionário está inativo.", 400);
 
-            return new FuncionarioDtoResponse
+            var dto = new FuncionarioDtoResponse
             {
                 Nome = funcionario.Nome,
                 CpfCnpj = funcionario.CpfCnpj,
@@ -51,8 +51,10 @@ namespace Mecanica.Services.Service
                 NomeCargo = funcionario.Cargo?.Nome
             };
 
+            return ResultadoServico<FuncionarioDtoResponse>.Ok(dto, "Ok", 200);
+
         }
-        public async Task<Funcionario> CriarAsync(CriarFuncionarioDtoRequest dto)
+        public async Task<ResultadoServico<FuncionarioDtoResponse>> CriarAsync(CriarFuncionarioDtoRequest dto)
         {
             var funcionario = new Funcionario
             {
@@ -62,16 +64,29 @@ namespace Mecanica.Services.Service
                 Email = dto.Email,
                 CargoId = dto.CargoId,
             };
-            return await _repository.CriarAsync(funcionario);
+            var criado = await _repository.CriarAsync(funcionario);
+
+            var resposta = new FuncionarioDtoResponse
+            {
+                Nome = criado.Nome,
+                CpfCnpj = criado.CpfCnpj,
+                Telefone = criado.Telefone,
+                Email = criado.Email,
+                Matricula = criado.Matricula,
+                Usuario = criado.Usuario?.Login,
+                NomeCargo = criado.Cargo?.Nome
+            };
+
+            return ResultadoServico<FuncionarioDtoResponse>.Ok(resposta, "Criado", 201);
         }
-        public async Task<Funcionario> AtualizarAsync(int matricula, AtualizarFuncionarioDtoRequest dto)
+        public async Task<ResultadoServico<FuncionarioDtoResponse>> AtualizarAsync(int matricula, AtualizarFuncionarioDtoRequest dto)
         {
             var funcioanrio = await _repository.ObterPorMatricula(matricula);
 
             if (funcioanrio is null)
-                throw new NaoEncontradoException($"Funcionário de matricula: {matricula} não encontrado.");
+                return ResultadoServico<FuncionarioDtoResponse>.Falha($"Funcionário de matricula: {matricula} não encontrado.", 404);
             if (!funcioanrio.Ativo)
-                throw new Exception("Funcionário está inativo.");
+                return ResultadoServico<FuncionarioDtoResponse>.Falha("Funcionário está inativo.", 400);
 
             funcioanrio.Nome = dto.Nome;
             funcioanrio.CpfCnpj = dto.CpfCnpj;
@@ -79,21 +94,34 @@ namespace Mecanica.Services.Service
             funcioanrio.Email = dto.Email;
             funcioanrio.CargoId = dto.CargoId;
 
-            return await _repository.AtualizarAsync(funcioanrio);
+            var atualizado = await _repository.AtualizarAsync(funcioanrio);
+
+            var resposta = new FuncionarioDtoResponse
+            {
+                Nome = atualizado.Nome,
+                CpfCnpj = atualizado.CpfCnpj,
+                Telefone = atualizado.Telefone,
+                Email = atualizado.Email,
+                Matricula = atualizado.Matricula,
+                Usuario = atualizado.Usuario?.Login,
+                NomeCargo = atualizado.Cargo?.Nome
+            };
+
+            return ResultadoServico<FuncionarioDtoResponse>.Ok(resposta, "Atualizado", 200);
 
         }
 
-        public async Task SoftDeleteAsync(int matricula)
+        public async Task<ResultadoServico<string>> SoftDeleteAsync(int matricula)
         {
             var funcionario = await _repository.ObterPorMatricula(matricula);
 
             if (funcionario is null)
-                throw new NaoEncontradoException($"Funcionário de matricula: {matricula} não encontrado.");
+                return ResultadoServico<string>.Falha($"Funcionário de matricula: {matricula} não encontrado.", 404);
 
             if (!funcionario.Ativo)
-                throw new Exception("Funcionário está inativo.");
+                return ResultadoServico<string>.Falha("Funcionário está inativo.", 400);
             await _repository.SoftDeleteAsync(matricula);
-            
+            return ResultadoServico<string>.Ok(null, "Excluído", 204);
         }
     }
 }

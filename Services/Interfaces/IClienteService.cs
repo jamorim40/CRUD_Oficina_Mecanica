@@ -1,6 +1,7 @@
 ﻿using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Models.Dtos.Responses.Cliente;
 using Mecanica.Models.Entities;
+using Mecanica.Shared;
 
 namespace Mecanica.Services.Interfaces
 {
@@ -8,9 +9,9 @@ namespace Mecanica.Services.Interfaces
     {
         Task<List<ClienteDtoResponse>> ObterTodos();
         Task<ClienteDtoResponse> ObterPorId(int id);
-        Task<ClienteDtoResponse> ObterPorCpfCnpj(string cpfCnpj);
-        Task<Cliente> CriarAsync(CriaClienteDtoRequest dto);
-        Task<Cliente> AtualizarAsync(string cpfCnpj, AtualizarClienteDtoRequest dto);
-        Task SoftDeleteAsync(string cpfCnpj);
+        Task<ResultadoServico<ClienteDtoResponse>> ObterPorCpfCnpj(string cpfCnpj);
+        Task<ResultadoServico<ClienteDtoResponse>> CriarAsync(CriaClienteDtoRequest dto);
+        Task<ResultadoServico<ClienteDtoResponse>> AtualizarAsync(string cpfCnpj, AtualizarClienteDtoRequest dto);
+        Task<ResultadoServico<string>> SoftDeleteAsync(string cpfCnpj);
     }
 }

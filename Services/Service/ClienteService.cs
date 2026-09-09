@@ -4,6 +4,7 @@ using Mecanica.Models.Entities;
 using Mecanica.Normalizers;
 using Mecanica.Repositories.Interfaces;
 using Mecanica.Services.Interfaces;
+using Mecanica.Shared;
 
 namespace Mecanica.Services.Service
 {
@@ -40,23 +41,25 @@ namespace Mecanica.Services.Service
                 Email = cliente.Email
             };
         }
-        public async Task<ClienteDtoResponse> ObterPorCpfCnpj(string cpfCnpj)
+        public async Task<ResultadoServico<ClienteDtoResponse>> ObterPorCpfCnpj(string cpfCnpj)
         {
             var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
-                return null!;
+                return ResultadoServico<ClienteDtoResponse>.Falha($"Cliente de cpfCnpj: {cpfCnpj} não encontrado.", 404);
             if (!cliente.Ativo)
-                return null!;
+                return ResultadoServico<ClienteDtoResponse>.Falha("Cliente inativo.", 400);
 
-            return new ClienteDtoResponse
+            var dto = new ClienteDtoResponse
             {
                 Nome = cliente.Nome,
                 Telefone = cliente.Telefone,
                 Email = cliente.Email,
                 CpfCnpj = cliente.CpfCnpj!
             };
+
+            return ResultadoServico<ClienteDtoResponse>.Ok(dto, "Ok", 200);
         }
-        public async Task<Cliente> CriarAsync(CriaClienteDtoRequest dto)
+        public async Task<ResultadoServico<ClienteDtoResponse>> CriarAsync(CriaClienteDtoRequest dto)
         {
             var cliente = new Cliente
             {
@@ -65,36 +68,57 @@ namespace Mecanica.Services.Service
                 Email = dto.Email,
                 CpfCnpj = dto.CpfCnpj,
             };
-            return await _repository.CriarAsync(cliente);
+            var criado = await _repository.CriarAsync(cliente);
+
+            var respostaDto = new ClienteDtoResponse
+            {
+                Nome = criado.Nome,
+                Telefone = criado.Telefone,
+                Email = criado.Email,
+                CpfCnpj = criado.CpfCnpj!
+            };
+
+            return ResultadoServico<ClienteDtoResponse>.Ok(respostaDto, "Criado", 201);
             
         }
-
-        public async Task<Cliente> AtualizarAsync(string cpfCnpj, AtualizarClienteDtoRequest dto)
+        public async Task<ResultadoServico<ClienteDtoResponse>> AtualizarAsync(string cpfCnpj, AtualizarClienteDtoRequest dto)
         {
             var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
-                throw new Exception("Cliente não encontrado. ");
+                return ResultadoServico<ClienteDtoResponse>.Falha("Cliente não encontrado.", 404);
             if (!cliente.Ativo)
-                throw new Exception("Cliente inativo. ");
+                return ResultadoServico<ClienteDtoResponse>.Falha("Cliente inativo.", 400);
+
             cliente.Nome = dto.Nome;
             cliente.Telefone = dto.Telefone;
             cliente.Email = dto.Email;
             cliente.CpfCnpj = dto.CpfCnpj;
 
-           return await _repository.AtualizarAsync(cliente);
+           var atualizado = await _repository.AtualizarAsync(cliente);
+
+           var resposta = new ClienteDtoResponse
+           {
+               Nome = atualizado.Nome,
+               Telefone = atualizado.Telefone,
+               Email = atualizado.Email,
+               CpfCnpj = atualizado.CpfCnpj!
+           };
+
+           return ResultadoServico<ClienteDtoResponse>.Ok(resposta, "Atualizado", 200);
         }
 
        
 
-        public async Task SoftDeleteAsync(string cpfCnpj)
+        public async Task<ResultadoServico<string>> SoftDeleteAsync(string cpfCnpj)
         {
             cpfCnpj = DocumentoNormalized.Normalizar(cpfCnpj);
             var cliente = await _repository.ObterPorCpfCnpj(cpfCnpj);
             if (cliente is null)
-                throw new Exception($"Cliente não encontrado. {cpfCnpj} ");
+                return ResultadoServico<string>.Falha($"Cliente não encontrado. {cpfCnpj}", 404);
             if (!cliente.Ativo)
-                throw new Exception("Cliente está inativo");
+                return ResultadoServico<string>.Falha("Cliente está inativo", 400);
             await _repository.SoftDeleteAsync(cpfCnpj);
+            return ResultadoServico<string>.Ok(null, "Excluído", 204);
         }
     }
 
