@@ -19,7 +19,12 @@ namespace Mecanica.Shared
                         return controller.NoContent();
                     return controller.NoContent();
                 }
-                return controller.Ok(resultado.Conteudo);
+                return controller.Ok(new
+                {
+                    resultado.Sucesso,
+                    resultado.Mensagem,
+                    resultado.Conteudo
+                });
             }
             else
             {

@@ -27,19 +27,21 @@ namespace Mecanica.Services.Service
             }).ToList();
         }
 
-        public async Task<ClienteDtoResponse> ObterPorId(int id)
+        public async Task<ResultadoServico<ClienteDtoResponse>> ObterPorId(int id)
         {
             var cliente = await _repository.ObterPorId(id);
             if (cliente is null)
-                return null!;
+                return ResultadoServico<ClienteDtoResponse>.Falha($"Cliente de id: {id} não encontrado.", 404);
             if (!cliente.Ativo)
-                return null!;
-            return new ClienteDtoResponse
+                return ResultadoServico<ClienteDtoResponse>.Falha("Cliente inativo.", 400);
+            var dto = new ClienteDtoResponse
             {
                 Nome = cliente.Nome,
                 Telefone = cliente.Telefone,
-                Email = cliente.Email
+                Email = cliente.Email,
+                CpfCnpj = cliente.CpfCnpj
             };
+            return ResultadoServico<ClienteDtoResponse>.Ok(dto, "Ok", 200);
         }
         public async Task<ResultadoServico<ClienteDtoResponse>> ObterPorCpfCnpj(string cpfCnpj)
         {

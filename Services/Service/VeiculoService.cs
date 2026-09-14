@@ -26,19 +26,20 @@ namespace Mecanica.Services.Service
                 Placa = c.Placa
             }).ToList();
         }
-        public async Task<VeiculoDtoResponse> ObterPorId(int id)
+        public async Task<ResultadoServico<VeiculoDtoResponse>> ObterPorId(int id)
         {
             var veiculo = await _repository.ObterPorId(id);
             if (veiculo is null)
-                return null!;
+                return ResultadoServico<VeiculoDtoResponse>.Falha($"Veículo de id: {id} não encontrado.", 404);
             if (!veiculo.Ativo)
-                return null!;
-            return new VeiculoDtoResponse
+                return ResultadoServico<VeiculoDtoResponse>.Falha("Veículo inativo.", 400);
+            var dto = new VeiculoDtoResponse
             {
                 Modelo = veiculo.Modelo,
                 Marca = veiculo.Marca,
                 Placa = veiculo.Placa
             };
+            return ResultadoServico<VeiculoDtoResponse>.Ok(dto, "Ok", 200);
         }
 
         public async Task<ResultadoServico<VeiculoDtoResponse>> ObterPorPlaca(string placa)

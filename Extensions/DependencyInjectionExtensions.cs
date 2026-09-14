@@ -5,7 +5,6 @@ using Mecanica.Services.Service;
 using Mecanica.Validations.Interfaces.Cliente;
 using Mecanica.Validations.Interfaces.OrdemServico;
 using Mecanica.Validations.Interfaces.Veiculo;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Mecanica.Extensions
 {
@@ -30,6 +29,9 @@ namespace Mecanica.Extensions
             
             services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
             services.AddScoped<IFuncionarioService, FuncionarioService>();
+
+            services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
 
             return services;
         }

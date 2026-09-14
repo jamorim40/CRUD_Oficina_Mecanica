@@ -45,6 +45,7 @@ namespace Mecanica.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(CriaClienteDtoRequest dto)
         {
+            dto.Nome = NomeNormalizado.NormalizarNome(dto.Nome);
             dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
             dto.Email = EmailNormalized.Normalizar(dto.Email);
             //dto.CpfCnpj = DocumentoValidador.ValidarCpfCnpj(dto.CpfCnpj);
@@ -60,6 +61,7 @@ namespace Mecanica.Controllers
         [HttpPut("{cpfCnpj}")]
         public async Task<IActionResult> Put(string cpfCnpj, AtualizarClienteDtoRequest dto)
         {
+            dto.Nome = NomeNormalizado.NormalizarNome(dto.Nome);
             dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
             dto.Email = EmailNormalized.Normalizar(dto.Email);
 

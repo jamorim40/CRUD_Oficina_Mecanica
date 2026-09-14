@@ -37,6 +37,7 @@ namespace Mecanica.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(CriarFuncionarioDtoRequest dto)
         {
+            dto.Nome = NomeNormalizado.NormalizarNome(dto.Nome);
             dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
             dto.Email = EmailNormalized.Normalizar(dto.Email);
             dto.CpfCnpj = DocumentoNormalized.Normalizar(dto.CpfCnpj);
@@ -51,6 +52,7 @@ namespace Mecanica.Controllers
         [HttpPut("{matricula}")]
         public async Task<IActionResult> Put(int matricula, AtualizarFuncionarioDtoRequest dto)
         {
+            dto.Nome = NomeNormalizado.NormalizarNome(dto.Nome);
             dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
             dto.Email = EmailNormalized.Normalizar(dto.Email);
             dto.CpfCnpj = DocumentoNormalized.Normalizar(dto.CpfCnpj);

@@ -32,6 +32,8 @@ namespace Mecanica.Repositories.Repository
         {
             return await _appDbContext
                 .Funcionarios
+                .Include(f => f.Usuario)
+                .Include(f => f.Cargo)
                 .FirstOrDefaultAsync(f => f.Matricula == matricula);
         }
 

@@ -8,7 +8,7 @@ namespace Mecanica.Services.Interfaces
     public interface IVeiculoService
     {
         Task<List<VeiculoDtoResponse>> ObterTodos();
-        Task<VeiculoDtoResponse> ObterPorId(int id);
+        Task<ResultadoServico<VeiculoDtoResponse>> ObterPorId(int id);
         Task<ResultadoServico<VeiculoDtoResponse>> ObterPorPlaca(string placa);
         Task<ResultadoServico<VeiculoDtoResponse>> CriarAsync(CriarVeiculoDtoRequest dto);
         //Task<Veiculo> AtualizarAsync(int id, AtualizarVeiculoDto dto);

@@ -3,6 +3,7 @@ using Mecanica.Models.Dtos.Requests.OrdemServico;
 using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
 using Mecanica.Validations.Interfaces.OrdemServico;
+using Mecanica.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,11 +60,7 @@ namespace Mecanica.Controllers
             }
 
             var resultado = await _ordemServicoService.AtualizarAsync(romaneio, dto);
-
-            if (!resultado.Sucesso)
-                return NotFound(resultado.Mensagem);
-
-            return Ok(resultado.Conteudo);
+            return resultado.ToActionResult(this);
         }
 
         [HttpDelete("{romaneio}")]
@@ -71,10 +68,7 @@ namespace Mecanica.Controllers
         public async Task<IActionResult> Delete(int romaneio)
         {
             var resultado = await _ordemServicoService.SoftDelete(romaneio);
-
-            if (!resultado.Sucesso)
-                return NotFound(resultado.Mensagem);
-            return Ok(resultado.Conteudo);
+            return resultado.ToActionResult(this);
         }
     }
 

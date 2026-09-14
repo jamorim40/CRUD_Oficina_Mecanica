@@ -68,11 +68,7 @@ namespace Mecanica.Services.Service
             var veiculos = await _veiculoRepository.ObterPorPlaca(dto.Placa);
 
             if (veiculos is null)
-                return new ResultadoServico<CriarOrdemServicoDtoResponse>
-                {
-                    Sucesso = false,
-                    Mensagem = $"Veículo {dto.Placa} não encontrado."
-                };
+                return ResultadoServico<CriarOrdemServicoDtoResponse>.Falha($"Veículo {dto.Placa} não encontrado.", 404);
 
             var ordemServico = new OrdemServico
             {
@@ -82,21 +78,19 @@ namespace Mecanica.Services.Service
                 Status = StatusOrdemServicoEnums.Aberto
             };
             ordemServico = await _repository.CriarAsync(ordemServico);
-            return new ResultadoServico<CriarOrdemServicoDtoResponse>
+            var conteudo = new CriarOrdemServicoDtoResponse
             {
-                Sucesso = true,
-                Conteudo = new CriarOrdemServicoDtoResponse
-                {
-                    Placa = veiculos.Placa,
-                    Marca = veiculos.Marca,
-                    Modelo = veiculos.Modelo,
-                    Romaneio = ordemServico.Romaneio,
-                    Descricao = ordemServico.Descricao,
-                    DataCadastro = ordemServico.DataCadastro,
-                    Status = ordemServico.Status.ObterDescricao(),
-                    Observacao = ordemServico.Observacao
-                }
+                Placa = veiculos.Placa,
+                Marca = veiculos.Marca,
+                Modelo = veiculos.Modelo,
+                Romaneio = ordemServico.Romaneio,
+                Descricao = ordemServico.Descricao,
+                DataCadastro = ordemServico.DataCadastro,
+                Status = ordemServico.Status.ObterDescricao(),
+                Observacao = ordemServico.Observacao
             };
+
+            return ResultadoServico<CriarOrdemServicoDtoResponse>.Ok(conteudo, "Criado", 201);
         }
 
         public async Task<ResultadoServico<AtualizarOrdemServicoDtoResponse>> AtualizarAsync(int  romaneio,AtualizarOrdemServicoDtoRequest dto)
@@ -105,11 +99,7 @@ namespace Mecanica.Services.Service
 
             if (ordemServico is null)
             {
-                return new ResultadoServico<AtualizarOrdemServicoDtoResponse>
-                {
-                    Sucesso = false,
-                    Mensagem = $"Romaneio {romaneio} não encontrado."
-                };
+                return ResultadoServico<AtualizarOrdemServicoDtoResponse>.Falha($"Romaneio {romaneio} não encontrado.", 404);
             }
 
                 ordemServico.Status = StatusOrdemServicoNormalized.ObterStatus(dto.Status);
@@ -123,17 +113,15 @@ namespace Mecanica.Services.Service
 
             ordemServico = await _repository.AtualizarAsync(ordemServico);
 
-            return new ResultadoServico<AtualizarOrdemServicoDtoResponse>
+            var conteudo = new AtualizarOrdemServicoDtoResponse
             {
-                Sucesso = true,
-                Conteudo = new AtualizarOrdemServicoDtoResponse
-                {
-                    DataInicio = ordemServico.DataInicio,
-                    DataFim = ordemServico.DataFim,
-                    Observacao = ordemServico.Observacao!,
-                    Status = ordemServico.Status.ObterDescricao()
-                }
+                DataInicio = ordemServico.DataInicio,
+                DataFim = ordemServico.DataFim,
+                Observacao = ordemServico.Observacao!,
+                Status = ordemServico.Status.ObterDescricao()
             };
+
+            return ResultadoServico<AtualizarOrdemServicoDtoResponse>.Ok(conteudo, "Atualizado", 200);
         }
 
         public async Task <ResultadoServico<string>>SoftDelete(int romaneio)
@@ -142,20 +130,12 @@ namespace Mecanica.Services.Service
 
             if (ordemServivo is null)
             {
-                return new ResultadoServico<string>
-                {
-                    Sucesso = false,
-                    Mensagem = $"Romaneio {romaneio} não encontrado."
-                };
+                return ResultadoServico<string>.Falha($"Romaneio {romaneio} não encontrado.", 404);
             }
 
             await _repository.SoftDeleteAsync(romaneio);
 
-            return new ResultadoServico<string>
-            {
-                Sucesso = true,
-                Conteudo = $"Romaneio {romaneio} excluído com sucesso."
-            };
+            return ResultadoServico<string>.Ok($"Romaneio {romaneio} excluído com sucesso.", "Excluído", 200);
         }
 
 

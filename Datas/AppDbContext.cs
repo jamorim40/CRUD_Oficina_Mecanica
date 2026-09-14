@@ -99,6 +99,9 @@ namespace Mecanica.Datas
                 entity.Property(x => x.Login).HasMaxLength(50);
                 entity.HasIndex(x => x.Login).IsUnique();
                 entity.HasOne(x => x.Funcionario).WithOne(x => x.Usuario).HasForeignKey<Usuario>(x => x.FuncionarioId).OnDelete(DeleteBehavior.Restrict);
+                entity.Property(x => x.PrimeiroAcesso).HasDefaultValue(true);
+                entity.Property(x => x.Bloqueado).HasDefaultValue(false);
+                entity.Property(x => x.TentativasLogin).HasDefaultValue(0);
 
             });
 
