@@ -2,6 +2,7 @@
 using Mecanica.Services.Interfaces;
 using Mecanica.Services.Service;
 using Mecanica.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mecanica.Controllers
@@ -49,6 +50,12 @@ namespace Mecanica.Controllers
         {
             var resultado =await _usuarioService.ResetarUsuarioAsync(dto);
             return resultado.ToActionResult(this);
+        }
+        [Authorize]
+        [HttpGet("teste")]
+        public IActionResult Teste()
+        {
+            return Ok("Autenticado");
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Mecanica.Repositories.Interfaces;
 using Mecanica.Repositories.Repository;
+using Mecanica.Security.Interfaces;
+using Mecanica.Security.Services;
 using Mecanica.Services.Interfaces;
 using Mecanica.Services.Service;
 using Mecanica.Validations.Interfaces.Cliente;

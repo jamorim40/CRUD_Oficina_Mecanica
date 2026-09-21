@@ -4,6 +4,7 @@ using Mecanica.Models.Dtos.Responses.Usuario;
 using Mecanica.Models.Entities;
 using Mecanica.Normalizers;
 using Mecanica.Repositories.Interfaces;
+using Mecanica.Security.Interfaces;
 using Mecanica.Services.Interfaces;
 using Mecanica.Shared;
 
@@ -13,12 +14,14 @@ namespace Mecanica.Services.Service
     {
         private readonly IUsuarioRepository _repository;
         private readonly IFuncionarioRepository _funcionarioRepository;
+        private readonly IJwtService _jwtService;
 
 
-        public UsuarioService(IUsuarioRepository repository, IFuncionarioRepository funcionarioRepository)
+        public UsuarioService(IUsuarioRepository repository, IFuncionarioRepository funcionarioRepository, IJwtService jwtService)
         {
             _repository = repository;
             _funcionarioRepository = funcionarioRepository;
+            _jwtService = jwtService;
         }
         public async Task<ResultadoServico<UsuarioDtoResponse>> ObterPorMatricula(int matricula)
         {
@@ -108,8 +111,9 @@ namespace Mecanica.Services.Service
             {
                 return ResultadoServico<string>.Falha("Primeiro acesso. É necessário alterar a senha.", 409);
             }
+            var token = _jwtService.GerarToken(usuario);
 
-            return ResultadoServico<string>.Ok("Login realizado com sucesso. ", "Ok", 200);
+            return ResultadoServico<string>.Ok(token,"Login realizado com sucesso. ", 200);
 
         }
 
