@@ -1,142 +1,122 @@
 # Projeto: CRUD_Oficina_Mecanica
 
-Última atualização: 2026-09-05
+Última atualização: 2026-09-27
 
 ## Resumo técnico
 
-- API REST para gestão de oficina mecânica: Clientes, Veículos, Ordens de Serviço e Cargos.
-- Implementada em .NET 10, ASP.NET Core, EF Core e SQL Server.
-- Arquitetura em camadas: Controllers → Services → Repositories → EF Core → Banco.
+- API REST para gestão de oficina mecânica.
+- Stack: .NET 10, ASP.NET Core, Entity Framework Core, SQL Server.
+- Arquitetura em camadas: Controllers → Services → Repositories → EF Core.
+- Segurança já implementada com JWT + endpoints de usuário/login.
+- Tratamento global de exceções implementado via middleware.
 
-## Estrutura do repositório (pastas principais)
+## Estrutura principal
 
-- Controllers/ — endpoints HTTP (ClienteController, VeiculoController, OrdemServicoController, CargoController)
-- Services/ — regras de negócio e interfaces (ex.: OrdemServicoService, CargoService, VeiculoService, ClienteService)
-- Repositories/ — acesso a dados (implementações e interfaces)
-- Models/ — entidades e DTOs (Requests / Responses)
-- Datas/ — AppDbContext e configuração do EF Core; migrations em /Migrations
-- Validations/ — validadores por entidade
-- Normalizers/ — PlacaNormalizado, TelefoneNormalizado, EmailNormalizado, StatusNormalizado
-- Documents/ — documentação do projeto (este documento)
-- Shared/ — ResultadoServico<T>, utilitários e extensões
+- `Controllers/` — Cliente, Veículo, OrdemServico, Cargo, Funcionario, Usuario, Teste
+- `Services/` — regras de negócio e contratos
+- `Repositories/` — persistência de dados e consultas
+- `Models/` — entidades, DTOs e enums
+- `Datas/` — `AppDbContext` e mapeamentos
+- `Migrations/` — histórico de evolução do banco
+- `Normalizers/` e `Validations/` — normalização e validações de entrada
+- `Security/` e `Extensions/` — geração de token JWT e configuração de autenticação
+- `Middleware/` — `ExcecoesMiddleware`
 
-## Marcos do projeto (início → situação atual)
+## Entidades no banco
 
-- Marco 1 (início): criação da API base com entidades Cliente, Veículo e OrdemServico; configuração EF Core e primeira migration.
-- Marco 2 (estabilização): implementação CRUD de Cliente e Veículo, normalizadores e validações básicas; padronização de soft delete em entidades (campo Ativo).
-- Marco 3 (evolução): implementação de AtualizarAsync e SoftDelete para OrdemServico; correção de DTO Veículo (Palca → Placa); padronização SoftDeleteAsync entre layers.
-- Marco 4 (extensão): adição da entidade Cargo com controller/service/repository; migrations adicionadas para Funcionario e Usuario; repositório parcial para Funcionario.
-- Situação atual: API compilando; endpoints principais expostos; front‑end, autenticação e testes automáticos pendentes.
+- Cliente
+- Veículo
+- OrdemServico
+- Cargo
+- Funcionario
+- Usuario
 
-## Endpoints implementados (detalhado, com identificadores corretos)
+Observações:
+- `Cliente.CpfCnpj`, `Veiculo.Placa`, `Cargo.Nome`, `Funcionario.CpfCnpj`, `Funcionario.Matricula` e `Usuario.Login` possuem restrições de unicidade.
+- `OrdemServico.Romaneio` é gerado por sequência (`RomaneioSequence`).
+- `Funcionario.Matricula` é gerada por sequência (`MatriculaSequence`).
+- Soft delete aplicado por campo `Ativo`.
 
-- Cliente (api/cliente)
-  - GET /api/cliente — listar todos (Services/Service/ClienteService.cs → ObterTodos)
-  - GET /api/cliente/{CpfCnpj} — obter por CpfCnpj (Controller: Controllers/ClienteController.cs; Service: IClienteService / ClienteService)
-  - POST /api/cliente — criar (Models/Dtos/Requests/Cliente)
-  - PUT /api/cliente/{CpfCnpj} — atualizar
-  - DELETE /api/cliente/{CpfCnpj} — soft delete (ClienteService.SoftDeleteAsync → Repositories/Repository/ClienteRepository.cs)
+## Endpoints implementados
 
-- Veículo (api/veiculo)
-  - GET /api/veiculo — listar (VeiculoService.ObterTodos)
-  - GET /api/veiculo/{placa} — obter por placa (uses PlacaNormalizado)
-  - POST /api/veiculo — criar
-  - PUT /api/veiculo/{placa} — atualizar
-  - DELETE /api/veiculo/{placa} — soft delete (VeiculoService / VeiculoRepository: SoftDeleteAsync)
+### Cliente (`/api/cliente`)
+- `GET /api/cliente`
+- `GET /api/cliente/{cpfCnpj}`
+- `POST /api/cliente`
+- `PUT /api/cliente/{cpfCnpj}`
+- `DELETE /api/cliente/{cpfCnpj}` (soft delete)
 
-- Ordem de Serviço (api/ordemservico)
-  - GET /api/ordemservico — listar (OrdemServicoService.ObterTodos)
-  - GET /api/ordemservico/placa/{placa} — listar por placa
-  - POST /api/ordemservico — criar (OrdemServicoService.CriarAsync)
-  - PUT /api/ordemservico/{romaneio} — atualizar (OrdemServicoService.AtualizarAsync)
-  - DELETE /api/ordemservico/{romaneio} — soft delete (OrdemServicoService.SoftDelete)
+### Veículo (`/api/veiculo`)
+- `GET /api/veiculo`
+- `GET /api/veiculo/{placa}`
+- `POST /api/veiculo`
+- `PUT /api/veiculo/{placa}`
+- `DELETE /api/veiculo/{placa}` (soft delete)
 
-- Cargo (api/cargo)
-  - GET /api/cargo — listar (CargoService.ObterTodos)
-  - GET /api/cargo/{nome} — obter por nome
-  - POST /api/cargo — criar
-  - DELETE /api/cargo/{nome} — soft delete (valida vínculo via FuncionarioRepository.ExisteFuncionarioPorCargo)
+### Ordem de Serviço (`/api/ordemservico`)
+- `GET /api/ordemservico`
+- `GET /api/ordemservico/{placa}`
+- `POST /api/ordemservico`
+- `PUT /api/ordemservico/{romaneio}`
+- `DELETE /api/ordemservico/{romaneio}` (soft delete)
 
-- Observação: controllers para Funcionario e Usuario não existem; apenas modelos, migrations e repositório parcial (FuncionarioRepository) estão presentes.
+### Cargo (`/api/cargo`)
+- `GET /api/cargo`
+- `GET /api/cargo/{nome}`
+- `POST /api/cargo`
+- `DELETE /api/cargo/{nome}` (soft delete com validação de vínculo)
 
-## Implementações recentes (resumidas com referências)
+### Funcionário (`/api/funcionario`)
+- `GET /api/funcionario`
+- `GET /api/funcionario/{matricula}`
+- `POST /api/funcionario`
+- `PUT /api/funcionario/{matricula}`
+- `DELETE /api/funcionario/{matricula}` (soft delete)
 
-- OrdemServicoService: AtualizarAsync e SoftDelete implementados (Services/Service/OrdemServicoService.cs).
-- Correções: RespostaVeiculoDto.Placa corrigido e mapeamentos atualizados (Models/Dtos/Responses/Veiculo/RespostaVeiculoDto.cs; Services/Service/VeiculoService.cs).
-- Padronização SoftDeleteAsync: IVeiculoRepository / IVeiculoService / VeiculoRepository / VeiculoService / VeiculoController atualizados.
-- Cargo: controller/service/repository implementados (Controllers/CargoController.cs; Services/Service/CargoService.cs; Repositories/Repository/CargoRepository.cs).
-- Migrations: AddCargoFuncionarioUsuario (Migrations/20260904233837_...).
+### Usuário (`/api/usuario`)
+- `GET /api/usuario/{matricula}`
+- `POST /api/usuario/Criar usuário`
+- `POST /api/usuario/Login`
+- `POST /api/usuario/Alterar senha`
+- `POST /api/usuario/Resetar senha`
+- `GET /api/usuario/teste` (requer token JWT)
 
-## Problemas detectados e ações tomadas
+### Teste de autorização (`/api/teste`)
+- `GET /api/teste/teste` (requer token JWT)
 
-- Métodos NotImplementedException removidos; revisado e implementado ExistsAsync ou removido conforme interface atual.
-- Parametrização de rotas alterada (Cliente por CpfCnpj; Veículo por placa) — refletido em controllers e README/PROJECT.
+## Segurança e autenticação
 
-## Funcionalidades pendentes e melhorias (detalhado)
+- JWT configurado em `Program.cs` com `AddJwtAuthentication`.
+- Swagger configurado com esquema Bearer.
+- `UsuarioService` implementa:
+  - criação de usuário com login automático e senha inicial
+  - login com geração de token
+  - bloqueio após tentativas inválidas
+  - fluxo de primeiro acesso (troca de senha)
+  - reset de usuário
+- Senhas armazenadas com hash BCrypt (`Shared/Senhas.cs`).
 
-- Autenticação e autorização:
-  - Implementar Identity ou JWT; tela de login (front‑end) e endpoints de autenticação (Usuario).
-- Entidades/Controllers faltantes:
-  - Implementar Controller/Service para Funcionario e Usuario (CRUD, login, associação com Cargo).
-- Qualidade e produção:
-  - Middleware global de exceções; centralizar mensagens e códigos HTTP.
-  - Logging estruturado (Serilog) e correlação de requisições.
-  - Testes: unitários (services/validators) e integração (endpoints/repositories); incluir xUnit/NUnit e cobertura mínima.
-  - CI/CD: GitHub Actions para build/test/deploy.
-  - Dockerfile e docker-compose para ambiente local.
-- APIs e UX:
-  - Paginação, filtros e ordenação nas listagens (clientes, veículos, ordens).
-  - Exportação/relatórios (CSV/PDF).
-  - Versão de API (v1/v2) quando breaking changes forem publicados.
-- Banco de dados:
-  - Políticas de retenção/arquivamento para soft deletes; histórico/auditoria (createdBy/updatedBy/deletedBy) se necessário.
+## Tratamento de erros
 
-## Checklist detalhado (feito vs a fazer)
+- `ExcecoesMiddleware` centraliza exceções e converte para resposta JSON.
+- Mapeamentos atuais:
+  - `NaoEncontradoException` → 404
+  - `RequisicaoInvalidaException` → 400
+  - `RegraNegocioException` → 409
+  - Demais exceções → 500
 
-- Feito
-  - Estrutura básica (Controllers/Services/Repositories/Models) — OK
-  - CRUD Cliente e Veículo — OK (identificadores: CpfCnpj / placa)
-  - Ordens de Serviço: criar, listar, atualizar, soft delete — OK
-  - Cargo: controller/service/repository — OK
-  - Normalizadores implementados (Placa, Telefone, Email, Status) — OK
-  - Correções de typos e remoção de NotImplementedException — OK
-  - Build local: compilação bem‑sucedida — OK
-- A fazer
-  - Controllers/Services para Funcionario e Usuario
-  - Autenticação (login) e autorização por roles
-  - Middleware global de exceções e padronização de erros
-  - Logging estruturado (Serilog) e política de logs
-  - Testes unitários e de integração; integração a CI
-  - Paginação/filtros e endpoints de relatório/exportação
-  - Docker e processo de deploy documentado
-  - Documentação Swagger ampliada (examples, responses)
+## Estado atual
 
-## Riscos e recomendações
+Implementado:
+- CRUD/soft delete de Cliente, Veículo, Ordem de Serviço, Cargo e Funcionário.
+- Módulo de Usuário com login e JWT.
+- Normalização de dados (nome, telefone, email, documento, placa, status).
+- Middleware global de exceções.
+- Migrations para evolução do modelo já aplicadas ao projeto.
 
-- Breaking changes: Palca → Placa alterou formato JSON; comunicar consumidores e versionar API quando publicar.
-- Soft delete: sem política de auditoria atual; definir procedimento para restore / retenção.
-- Migrations: manter migrations versionadas e documentar processo de deploy/DB update.
-- Recomendação imediata: criar branch de release e não publicar breaking changes sem versionamento; implementar testes antes de expor publicamente a API.
-
-## Procedimento para atualização do documento
-
-- Política sugerida: atualizar Documents/PROJECT.md em cada commit que modifica comportamento/contract da API (endpoints, DTOs, migrations).
-- Incluir no documento:
-  - Data
-  - Hash do commit (opcional)
-  - Resumo das mudanças
-  - Impacto (breaking / non-breaking)
-- Sugestão: automatizar checklist no CI para verificar que PROJECT.md foi atualizado quando PR alterar contratos públicos.
-
-## Roadmap (curto e médio prazo)
-
-- Curto (0–4 semanas): implementar controllers/services para Funcionario/Usuario; middleware de exceções; testes básicos.
-- Médio (1–3 meses): autenticação/authorization; front‑end Blazor (telas principais); CI/CD; relatórios.
-- Longo (3+ meses): monitoramento, auditoria e melhorias de performance.
-
-## Histórico resumido (últimas entradas)
-
-- 2026-09-05: Atualizar/SoftDelete em OrdemServico implementados; SoftDeleteAsync padronizado; Placa corrigida; Cargo implementado; migrations Funcionario/Usuario adicionadas; build OK.
-- 2026-08-30: Backlog Blazor consolidado; padronizações iniciais aplicadas.
-
-Fim do documento.
+Pendente / melhoria:
+- Padronizar rotas de `UsuarioController` (atualmente há segmentos com espaço).
+- Definir política de roles/perfis e expandir autorização além dos endpoints de teste.
+- Configurar de fato logging estruturado (há pacotes Serilog no projeto, sem configuração ativa em `Program.cs`).
+- Criar suíte de testes automatizados (não há testes no repositório).
+- Evoluir CI/CD e documentação de deploy.
