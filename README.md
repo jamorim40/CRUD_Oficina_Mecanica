@@ -9,8 +9,11 @@ Resumo
 Status atual (escopo incluído nesta documentação)
 - API principal: Controllers, Services e Repositories implementados para Cliente, Veículo, OrdemServico e Cargo.
 - Entidades: Cliente, Veiculo, OrdemServico, Cargo, Funcionario, Usuario, Permissao, GrupoPermissao e relacionamentos entre elas estão modelados e possuem migrations geradas.
-- Segurança: suporte a JWT implementado (JwtService, JwtSettings, extensão de autenticação); endpoints de usuário (criar, login, alterar/resetar senha) disponíveis.
+- Segurança: suporte a JWT implementado (JwtService, JwtSettings, extensão de autenticação) com permissões adicionadas como claims e autorização dinâmica por políticas.
+- Autorização: endpoints de Cliente, Veículo, Ordem de Serviço e Usuário possuem proteção por permissões específicas; Funcionário possui proteção por JWT.
+- Usuários: login com carregamento de permissões, alteração/reset de senha e exclusão lógica por matrícula.
 - Tratamento de exceções: middleware global (ExcecoesMiddleware) aplicado.
+- Testes: projeto separado `Mecanica.Tests` criado com xUnit para evolução da suíte automatizada.
 
 
 Arquitetura e organização
@@ -23,7 +26,8 @@ Arquitetura e organização
   - Datas/ (AppDbContext)
   - Migrations/ (histórico de banco)
   - Normalizers/ e Validations/ (normalização e validação de entrada)
-  - Security/ e Extensions/ (serviço JWT, configurações e injeção de dependência)
+  - Security/ e Extensions/ (serviço JWT, autorização por permissões, configurações e injeção de dependência)
+  - Security/Autorizacao/ (atributo, requisito, policy provider e handler de permissões)
   - Middleware/ (ExcecoesMiddleware)
 
 Principais arquivos de configuração e utilitários
@@ -45,6 +49,7 @@ Banco de dados / Migrations
   - 20260909172408_Alteracao entidade Fucnionario.Designer.cs
   - 20260910174553_Usuario novos campos.cs
   - 20260910174553_Usuario novos campos.Designer.cs
+   - 20261018195627_CriacaoDePermissoes.cs
   - 20261018195627_CriacaoDePermissoes.Designer.cs
   - AppDbContextModelSnapshot.cs
 
@@ -55,25 +60,25 @@ Banco de dados / Migrations
 
 Endpoints expostos (resumo por controller)
 - Cliente — rota: /api/cliente
-  - GET /api/cliente
-  - GET /api/cliente/{cpfCnpj}
-  - POST /api/cliente
-  - PUT /api/cliente/{cpfCnpj}
-  - DELETE /api/cliente/{cpfCnpj} (soft delete)
+  - GET /api/cliente (CLIENTE_CONSULTAR)
+  - GET /api/cliente/{cpfCnpj} (CLIENTE_CONSULTAR)
+  - POST /api/cliente (CLIENTE_CRIAR)
+  - PUT /api/cliente/{cpfCnpj} (CLIENTE_EDITAR)
+  - DELETE /api/cliente/{cpfCnpj} (CLIENTE_APAGAR; soft delete)
 
 - Veículo — rota: /api/veiculo
-  - GET /api/veiculo
-  - GET /api/veiculo/{placa}
-  - POST /api/veiculo
-  - PUT /api/veiculo/{placa}
-  - DELETE /api/veiculo/{placa} (soft delete)
+  - GET /api/veiculo (VEICULO_CONSULTAR)
+  - GET /api/veiculo/{placa} (VEICULO_CONSULTAR)
+  - POST /api/veiculo (VEICULO_CRIAR)
+  - PUT /api/veiculo/{placa} (VEICULO_EDITAR)
+  - DELETE /api/veiculo/{placa} (VEICULO_APAGAR; soft delete)
 
 - Ordem de Serviço — rota: /api/ordemservico
-  - GET /api/ordemservico
-  - GET /api/ordemservico/{placa}
-  - POST /api/ordemservico
-  - PUT /api/ordemservico/{romaneio}
-  - DELETE /api/ordemservico/{romaneio} (soft delete)
+  - GET /api/ordemservico (OS_CONSULTAR)
+  - GET /api/ordemservico/{placa} (OS_CONSULTAR)
+  - POST /api/ordemservico (OS_CRIAR)
+  - PUT /api/ordemservico/{romaneio} (OS_EDITAR)
+  - DELETE /api/ordemservico/{romaneio} (OS_APAGAR; soft delete)
 
 - Cargo — rota: /api/cargo
   - GET /api/cargo
@@ -89,21 +94,27 @@ Endpoints expostos (resumo por controller)
   - DELETE /api/funcionario/{matricula} (soft delete)
 
 - Usuário — rota: /api/usuario
-  - GET /api/usuario/{matricula} (Authorize)
-  - POST /api/usuario/Criar (Authorize)
+  - GET /api/usuario/{matricula} (sem política de permissão ativa)
+  - POST /api/usuario/Criar (USUARIO_CRIAR)
   - POST /api/usuario/Login
-  - POST /api/usuario/Alterar-Senha (Authorize)
-  - POST /api/usuario/Resetar-Senha (Authorize)
+  - POST /api/usuario/Alterar-Senha (AllowAnonymous para primeiro acesso)
+  - POST /api/usuario/Resetar-Senha (USUARIO_RESETAR_SENHA)
+  - DELETE /api/usuario/{matricula} (VEICULO_APAGAR atualmente; soft delete)
+  - GET /api/usuario/Permissoes/{usuarioId} (consulta de permissões; endpoint de apoio/teste)
 
 - Teste (autorização) — rota: /api/teste
   - GET /api/teste/teste (requer token JWT)
 
 Normalização e validação
 - Normalizadores: DocumentoNormalized, PlacaNormalizado, NomeNormalizado, TelefoneNormalized, EmailNormalized, StatusNormalizado, StatusOrdemServicoNormalized.
-- Validações específicas: validação de CPF/CNPJ, validações por DTO para Cliente/Veículo/OrdemServico.
+- Validações específicas: validação de CPF/CNPJ com normalização prévia, validações por DTO para Cliente/Veículo/OrdemServico.
+- Status de Ordem de Serviço aceita separadores variados (espaços, hífens, barras e sublinhados) durante a normalização.
 
 Segurança
 - JWT: implementação em Security/ (JwtService, JwtSettings) e extensão em Extensions/JwtExtesions.cs; autenticação adicionada via AddJwtAuthentication em Program.cs.
+- Claims: o token inclui as permissões do usuário usando o claim personalizado `permissoes`.
+- Autorização dinâmica: `RequirePermissionAttribute` cria policies no formato `Permission:<codigo>`, processadas por `PermissionPolicyProvider` e `PermissionAuthorizationHandler`.
+- Permissões: os códigos são obtidos por meio dos grupos vinculados ao usuário, evitando a duplicação direta de permissões no relacionamento com usuários.
 - Senhas: hash com BCrypt (Shared/Senhas.cs).
 
 Pacotes / dependências relevantes
@@ -111,6 +122,7 @@ Pacotes / dependências relevantes
 - Microsoft.AspNetCore.Authentication.JwtBearer
 - BCrypt.Net-Next
 - Swashbuckle.AspNetCore (Swagger)
+- xUnit, Microsoft.NET.Test.Sdk e coverlet.collector (projeto Mecanica.Tests)
 - Serilog.AspNetCore + sinks (pacotes presentes mas sem configuração ativa no Program.cs)
 
 Como executar localmente
@@ -121,13 +133,13 @@ Como executar localmente
 
 Build e testes
 - Build: dotnet build — compilação local aceita (recomenda‑se rodar localmente para confirmar em sua máquina).
-- Testes: o repositório contém projeto de testes separado (mecanica.Tests) — não está documentado/atualizado aqui; não há suíte de testes integrada neste README.
+- Testes: o projeto separado `Mecanica.Tests` utiliza xUnit e contém a estrutura inicial para testes automatizados.
 
 Pontos pendentes / recomendações
 1. Revisar rotas e nomes nos endpoints de Usuário (algumas rotas usam segmentos com hífen e letra maiúscula — padronizar se desejar).
 2. Ativar configuração central de logging estruturado (Serilog) em Program.cs se for utilizar os pacotes já adicionados.
-3. Implementar políticas de autorização baseadas em permissões/roles (já existem entidades Permissao/GrupoPermissao modeladas).
-4. Adicionar testes automatizados (xUnit/NUnit) no projeto de testes.
+3. Expandir a suíte de testes automatizados para controllers, serviços, repositórios e autorização.
+4. Revisar o endpoint de consulta de permissões, atualmente mantido como apoio/teste, antes de utilizá-lo em produção.
 
 Contato
 - Repositório remoto: https://github.com/jamorim40/CRUD_Oficina_Mecanica
