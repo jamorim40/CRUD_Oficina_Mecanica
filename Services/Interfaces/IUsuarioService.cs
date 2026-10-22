@@ -11,5 +11,6 @@ namespace Mecanica.Services.Interfaces
         Task<ResultadoServico<string>> LoginAsync(LoginUsuarioDtoRequest dtoResquesteLogin);
         Task<ResultadoServico<bool>> AlterarSenhaPrimeiroAcessoAsync(AlterarSenhaPrimeiroAcessoUsuarioDtoRequest dtoRequestAlterarSenha);
         Task<ResultadoServico<bool>> ResetarUsuarioAsync(ResetarUsuarioDtoRequest dtoRequestResetar);
+        Task<ResultadoServico<string>> SoftDelete(int matricula);
     }
 }

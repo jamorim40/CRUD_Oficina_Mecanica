@@ -121,7 +121,7 @@ namespace Mecanica.Services.Service
             if (!funcionario.Ativo)
                 return ResultadoServico<string>.Falha("Funcionário está inativo.", 400);
             await _repository.SoftDeleteAsync(matricula);
-            return ResultadoServico<string>.Ok(null, "Excluído", 204);
+            return ResultadoServico<string>.Ok(null, "Excluído", 200);
         }
     }
 }

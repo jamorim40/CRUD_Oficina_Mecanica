@@ -20,7 +20,12 @@ namespace Mecanica.Datas
         public DbSet<Cargo> Cargos { get; set; }
         public DbSet<Funcionario> Funcionarios { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
-       
+        public DbSet<Permissao> Permissoes { get; set; }
+        public DbSet<GrupoPermissao> GrupoPermissoes { get; set; }
+        public DbSet<GrupoPermissaoItem> GrupoPermissaoItens { get; set; }
+        public DbSet<UsuarioGrupoPermissao> UsuarioGrupoPermissoes { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -59,9 +64,7 @@ namespace Mecanica.Datas
                 entity.Property(x => x.Observacao).HasMaxLength(500);
                 // Romaneio será preenchido pelo banco usando a sequência RomaneioSequence
                 entity.Property(x => x.Romaneio).HasDefaultValueSql("NEXT VALUE FOR RomaneioSequence");
-                entity.HasOne(x => x.Veiculo).WithMany()
-                    .HasForeignKey(x => x.VeiculoId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(x => x.Veiculo).WithMany().HasForeignKey(x => x.VeiculoId).OnDelete(DeleteBehavior.Restrict);
             });
 
             //Cargo
@@ -103,6 +106,42 @@ namespace Mecanica.Datas
                 entity.Property(x => x.Bloqueado).HasDefaultValue(false);
                 entity.Property(x => x.TentativasLogin).HasDefaultValue(0);
 
+            });
+
+            //Permissao
+            modelBuilder.Entity<Permissao>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Id).UseIdentityColumn();
+                entity.Property(x => x.Codigo).HasMaxLength(100).IsRequired();
+                entity.HasIndex(x => x.Codigo).IsUnique();
+                entity.Property(x => x.Descricao).HasMaxLength(250).IsRequired();
+            });
+
+            //GrupoPermissao
+            modelBuilder.Entity<GrupoPermissao>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+                entity.Property(x => x.Id).UseIdentityColumn();
+                entity.Property(x => x.Nome).HasMaxLength(100).IsRequired();
+                entity.HasIndex(x => x.Nome).IsUnique();
+                entity.Property(x => x.Descricao).HasMaxLength(250);
+            });
+
+            //GrupoPermissaoItem
+            modelBuilder.Entity<GrupoPermissaoItem>(entity =>
+            {
+                entity.HasKey(x => new{x.GrupoPermissaoId,x.PermissaoId});
+                entity.HasOne(x => x.GrupoPermissao).WithMany(x => x.Permissoes).HasForeignKey(x => x.GrupoPermissaoId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(x => x.Permissao).WithMany(x => x.GruposPermissao).HasForeignKey(x => x.PermissaoId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //UsuarioGrupoPermissao
+            modelBuilder.Entity<UsuarioGrupoPermissao>(entity =>
+            {
+                entity.HasKey(x => new{x.UsuarioId,x.GrupoPermissaoId});
+                entity.HasOne(x => x.Usuario).WithMany(x => x.GruposPermissao).HasForeignKey(x => x.UsuarioId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(x => x.GrupoPermissao).WithMany(x => x.Usuarios).HasForeignKey(x => x.GrupoPermissaoId).OnDelete(DeleteBehavior.Restrict);
             });
 
             //EntityBase

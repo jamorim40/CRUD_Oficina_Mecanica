@@ -61,20 +61,22 @@ namespace Mecanica.Services.Service
             }).ToList();
 
         }
-        public async Task<ResultadoServico<CriarOrdemServicoDtoResponse>> CriarAsync(CriarOrdemServicoDtoRequest dto)
+        public async Task<ResultadoServico<CriarOrdemServicoDtoResponse>> CriarAsync(CriarOrdemServicoDtoRequest dtoCriar)
         {
-            dto.Placa = PlacaNormalizado.Normalizar(dto.Placa);
+            dtoCriar.Placa = PlacaNormalizado.Normalizar(dtoCriar.Placa);
+            dtoCriar.Descricao = dtoCriar.Descricao.ToUpper();
+            dtoCriar.Observacao = dtoCriar.Observacao?.ToUpper();
 
-            var veiculos = await _veiculoRepository.ObterPorPlaca(dto.Placa);
+            var veiculos = await _veiculoRepository.ObterPorPlaca(dtoCriar.Placa);
 
             if (veiculos is null)
-                return ResultadoServico<CriarOrdemServicoDtoResponse>.Falha($"Veículo {dto.Placa} não encontrado.", 404);
+                return ResultadoServico<CriarOrdemServicoDtoResponse>.Falha($"Veículo {dtoCriar.Placa} não encontrado.", 404);
 
             var ordemServico = new OrdemServico
             {
                 VeiculoId = veiculos.Id,
-                Descricao = dto.Descricao,
-                Observacao = dto.Observacao,
+                Descricao = dtoCriar.Descricao,
+                Observacao = dtoCriar.Observacao,
                 Status = StatusOrdemServicoEnums.Aberto
             };
             ordemServico = await _repository.CriarAsync(ordemServico);
@@ -93,7 +95,7 @@ namespace Mecanica.Services.Service
             return ResultadoServico<CriarOrdemServicoDtoResponse>.Ok(conteudo, "Criado", 201);
         }
 
-        public async Task<ResultadoServico<AtualizarOrdemServicoDtoResponse>> AtualizarAsync(int  romaneio,AtualizarOrdemServicoDtoRequest dto)
+        public async Task<ResultadoServico<AtualizarOrdemServicoDtoResponse>> AtualizarAsync(int  romaneio,AtualizarOrdemServicoDtoRequest dtoAtualizar)
         {
             var ordemServico = await _repository.ObterPorRomaneio(romaneio);
 
@@ -102,13 +104,13 @@ namespace Mecanica.Services.Service
                 return ResultadoServico<AtualizarOrdemServicoDtoResponse>.Falha($"Romaneio {romaneio} não encontrado.", 404);
             }
 
-                ordemServico.Status = StatusOrdemServicoNormalized.ObterStatus(dto.Status);
+                ordemServico.Status = StatusOrdemServicoNormalized.ObterStatus( dtoAtualizar.Status);
 
-                ordemServico.Observacao = dto.Observacao;
+                ordemServico.Observacao = dtoAtualizar.Observacao?.ToUpper();
 
-                ordemServico.DataInicio = dto.DataInicio;
+                ordemServico.DataInicio = dtoAtualizar.DataInicio;
 
-                ordemServico.DataFim = dto.DataFim;
+                ordemServico.DataFim = dtoAtualizar.DataFim;
 
 
             ordemServico = await _repository.AtualizarAsync(ordemServico);

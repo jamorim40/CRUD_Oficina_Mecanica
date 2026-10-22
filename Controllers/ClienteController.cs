@@ -1,6 +1,7 @@
 ﻿using Mecanica.Exceptions;
 using Mecanica.Models.Dtos.Requests.Cliente;
 using Mecanica.Normalizers;
+using Mecanica.Security.Autorizacao;
 using Mecanica.Services.Interfaces;
 using Mecanica.Shared;
 using Mecanica.Validations;
@@ -24,6 +25,7 @@ namespace Mecanica.Controllers
             _clienteValidador = clienteValidador;
         }
 
+        [RequirePermission("CLIENTE_CONSULTAR")]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -31,6 +33,7 @@ namespace Mecanica.Controllers
             return Ok(clientes);
         }
 
+        [RequirePermission("CLIENTE_CONSULTAR")]
         [HttpGet("{cpfCnpj}")]
         public async Task<IActionResult> GetById(string cpfCnpj)
         {
@@ -42,33 +45,46 @@ namespace Mecanica.Controllers
             return Ok(cliente);
         }
 
+        [RequirePermission("CLIENTE_CRIAR")]
         [HttpPost]
-        public async Task<IActionResult> Post(CriaClienteDtoRequest dto)
+        public async Task<IActionResult> Post(CriaClienteDtoRequest dtoCriar)
         {
-            dto.Nome = NomeNormalizado.NormalizarNome(dto.Nome);
-            dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
-            dto.Email = EmailNormalized.Normalizar(dto.Email);
-            //dto.CpfCnpj = DocumentoValidador.ValidarCpfCnpj(dto.CpfCnpj);
+            dtoCriar.Nome = NomeNormalizado.NormalizarNome(dtoCriar.Nome);
+            dtoCriar.Telefone = TelefoneNormalized.Normalizar(dtoCriar.Telefone);
+            dtoCriar.Email = EmailNormalized.Normalizar(dtoCriar.Email);
+            // Normaliza o documento antes de validar (ex.: 508.970.500-37 -> 50897050037)
+            dtoCriar.CpfCnpj = DocumentoNormalized.Normalizar(dtoCriar.CpfCnpj);
 
-            var erros = _clienteValidador.validador(dto);
+            var erros = _clienteValidador.validador(dtoCriar);
             if (erros.Any())
                 return BadRequest(erros);
 
-            var resultado = await _clienteService.CriarAsync(dto);
+            var resultado = await _clienteService.CriarAsync(dtoCriar);
             return resultado.ToActionResult(this);
         }
 
+        [RequirePermission("CLIENTE_EDITAR")]
         [HttpPut("{cpfCnpj}")]
-        public async Task<IActionResult> Put(string cpfCnpj, AtualizarClienteDtoRequest dto)
+        public async Task<IActionResult> Put(string cpfCnpj, AtualizarClienteDtoRequest dtoAtualizar)
         {
-            dto.Nome = NomeNormalizado.NormalizarNome(dto.Nome);
-            dto.Telefone = TelefoneNormalized.Normalizar(dto.Telefone);
-            dto.Email = EmailNormalized.Normalizar(dto.Email);
+            dtoAtualizar.Nome = NomeNormalizado.NormalizarNome(dtoAtualizar.Nome);
+            dtoAtualizar.Telefone = TelefoneNormalized.Normalizar(dtoAtualizar.Telefone);
+            dtoAtualizar.Email = EmailNormalized.Normalizar(dtoAtualizar.Email);
+            dtoAtualizar.CpfCnpj = DocumentoNormalized.Normalizar(dtoAtualizar.CpfCnpj);
+            var erros = _clienteValidador.validador(new CriaClienteDtoRequest
+            {
+                Nome = dtoAtualizar.Nome,
+                Telefone = dtoAtualizar.Telefone,
+                Email = dtoAtualizar.Email,
+                CpfCnpj = dtoAtualizar.CpfCnpj
+            });
 
-            var resultado = await _clienteService.AtualizarAsync(cpfCnpj, dto);
+
+            var resultado = await _clienteService.AtualizarAsync(cpfCnpj, dtoAtualizar);
             return resultado.ToActionResult(this);
         }
 
+        [RequirePermission("CLIENTE_APAGAR")]
         [HttpDelete("{cpfCnpj}")]
         public async Task<IActionResult> Delete(string cpfCnpj)
         {

@@ -15,6 +15,12 @@ namespace Mecanica.Validations.Interfaces.Cliente
                 erros.Add("Email é obrigatório.");
             if (!dto.Email.Contains("@"))
                 erros.Add("Email invállido");
+            //validar cpf/cnpj com metodo de validação
+            if (string.IsNullOrWhiteSpace(dto.CpfCnpj))
+                erros.Add("Cpf/Cnpj é obrigatório.");
+            if (!DocumentoValidation.ValidarCpfCnpj(dto.CpfCnpj))
+                erros.Add("Cpf/Cnpj inválido.");
+
             return erros;
         }
     }

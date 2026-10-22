@@ -1,4 +1,5 @@
-﻿using Mecanica.Models.Entities;
+﻿using Mecanica.Extensions;
+using Mecanica.Models.Entities;
 using Mecanica.Security.Interfaces;
 using Mecanica.Security.Settings;
 using Microsoft.Extensions.Options;
@@ -12,26 +13,31 @@ namespace Mecanica.Security.Services
     public class JwtService : IJwtService
     {
         private readonly JwtSettings _jwtsettings;
-       public JwtService(IOptions<JwtSettings> jwtsettings)
+        public JwtService(IOptions<JwtSettings> jwtsettings)
         {
             _jwtsettings = jwtsettings.Value;
         }
 
-        public string GerarToken(Usuario usuario)
+        public string GerarToken(Usuario usuario, IEnumerable<string> permissoes)
         {
             var tokenManipulado = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_jwtsettings.Key);
-           
+
             var reivindicacoes = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
-                new Claim("login", usuario.Login?? string.Empty),
-                new Claim("funcionarioId", usuario.FuncionarioId.ToString()),
+                new Claim(TiposClaimCustom.Login, usuario.Login?? string.Empty),
+                new Claim(TiposClaimCustom.FuncionarioId, usuario.FuncionarioId.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Login?? string.Empty)
+
             };
+            foreach (var permissao in permissoes)
+            {
+                reivindicacoes.Add(new Claim(TiposClaimCustom.Permissoes, permissao));
+            }
             if (usuario.Funcionario != null)
             {
-                reivindicacoes.Add(new Claim("matricula", usuario.Funcionario.Matricula.ToString()));
+                reivindicacoes.Add(new Claim(TiposClaimCustom.Matricula, usuario.Funcionario.Matricula.ToString()));
             }
             var tokenDescricao = new SecurityTokenDescriptor
             {
@@ -48,5 +54,6 @@ namespace Mecanica.Security.Services
 
 
         }
+
     }
 }

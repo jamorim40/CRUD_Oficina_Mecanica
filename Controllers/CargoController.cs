@@ -1,10 +1,6 @@
-﻿using Mecanica.Exceptions;
-using Mecanica.Models.Dtos.Requests.Cargo;
-using Mecanica.Models.Dtos.Requests.Cliente;
-using Mecanica.Normalizers;
+﻿using Mecanica.Models.Dtos.Requests.Cargo;
 using Mecanica.Services.Interfaces;
 using Mecanica.Shared;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mecanica.Controllers

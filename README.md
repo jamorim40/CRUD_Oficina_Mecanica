@@ -1,94 +1,140 @@
 # Mecanica API (CRUD_Oficina_Mecanica)
 
+Última atualização: 2026-10-18
+
 Resumo
-- API REST para gerenciamento de oficina mecânica: Clientes, Veículos, Ordens de Serviço (com soft delete) e cargos.
-- Implementada em .NET 10 com ASP.NET Core, Entity Framework Core e SQL Server.
+- API REST para gestão de oficina mecânica: Clientes, Veículos, Ordens de Serviço, Cargos, Funcionários e Usuários.
+- Implementada em .NET 10 com ASP.NET Core, Entity Framework Core (SQL Server) e Swagger (Swashbuckle).
 
-Status atual
-- Implementações: CRUD Cliente e Veículo, Ordens de Serviço (create/list/update/soft delete), Cargo (endpoints completos).
-- Evoluções: modelos e migrations para Funcionario e Usuario adicionadas; repositório parcial para Funcionario.
+Status atual (escopo incluído nesta documentação)
+- API principal: Controllers, Services e Repositories implementados para Cliente, Veículo, OrdemServico e Cargo.
+- Entidades: Cliente, Veiculo, OrdemServico, Cargo, Funcionario, Usuario, Permissao, GrupoPermissao e relacionamentos entre elas estão modelados e possuem migrations geradas.
+- Segurança: suporte a JWT implementado (JwtService, JwtSettings, extensão de autenticação); endpoints de usuário (criar, login, alterar/resetar senha) disponíveis.
+- Tratamento de exceções: middleware global (ExcecoesMiddleware) aplicado.
 
-Marcos do projeto
-- Início: implementação da API base com entidades Cliente, Veículo e OrdemServico e persistência via EF Core.
-- Evolução: padronização de SoftDeleteAsync, implementação de Atualizar/SoftDelete para OrdemServico.
-- Extensão: adição da entidade Cargo (controller/service/repository), e migrações para Funcionario e Usuario.
-- Situação atual: API compilando e endpoints principais expostos; front‑end e autenticação pendentes.
 
-Arquitetura
+Arquitetura e organização
 - Padrão em camadas: Controller → Service → Repository → EF Core → SQL Server
-- Pastas principais: Controllers/, Services/, Repositories/, Models/, Datas/, Validations/, Normalizers/, Documents/
+- Pastas principais (resumo):
+  - Controllers/ (Cliente, Veiculo, OrdemServico, Cargo, Funcionario, Usuario)
+  - Services/ (interfaces e implementações)
+  - Repositories/ (interfaces e implementações)
+  - Models/ (Entities, DTOs, Enums)
+  - Datas/ (AppDbContext)
+  - Migrations/ (histórico de banco)
+  - Normalizers/ e Validations/ (normalização e validação de entrada)
+  - Security/ e Extensions/ (serviço JWT, configurações e injeção de dependência)
+  - Middleware/ (ExcecoesMiddleware)
 
-Entidades e comportamento relevante
-- Cliente: soft delete via propriedade Ativo; identificação por CpfCnpj.
-- Veículo: Placa única (índice), normalizada antes de persistir.
-- OrdemServico: vincula-se ao Veículo; Romaneio gerado pelo banco; Status como enum com descrição; soft delete.
-- Cargo / Funcionario / Usuario: Cargo implementado; Funcionario e Usuario possuem modelos e migrations; controllers/services de Funcionario/Usuario pendentes.
+Principais arquivos de configuração e utilitários
+- Program.cs: configura serviços, Swagger (com esquema Bearer) e ativa middleware de exceções, autenticação e autorização.
+- appsettings.json / appsettings.Development.json: connection string e configurações.
+- Mecanica.csproj: pacotes usados (EF Core, JwtBearer, BCrypt.Net-Next, Swashbuckle.* — presentes como dependências).
 
-Endpoints principais (com parâmetros corrigidos)
-- Cliente (api/cliente)
+Banco de dados / Migrations
+- Migrations presentes (lista):
+  - 20260820204645_CreationOfMigrations.cs
+  - 20260820204645_CreationOfMigrations.Designer.cs
+  - 20260904005537_addCpfCnpj.cs
+  - 20260904005537_addCpfCnpj.Designer.cs
+  - 20260904005905_CpfCnpfObrigatorio.cs
+  - 20260904005905_CpfCnpfObrigatorio.Designer.cs
+  - 20260904233837_AddCargoFuncionarioUsuario.cs
+  - 20260904233837_AddCargoFuncionarioUsuario.Designer.cs
+  - 20260909172408_Alteracao entidade Fucnionario.cs
+  - 20260909172408_Alteracao entidade Fucnionario.Designer.cs
+  - 20260910174553_Usuario novos campos.cs
+  - 20260910174553_Usuario novos campos.Designer.cs
+  - 20261018195627_CriacaoDePermissoes.Designer.cs
+  - AppDbContextModelSnapshot.cs
+
+- Observações de modelagem no DbContext (Datas/AppDbContext.cs):
+  - Índices únicos: Cliente.CpfCnpj, Veiculo.Placa, Cargo.Nome, Funcionario.CpfCnpj, Funcionario.Matricula, Usuario.Login, Permissao.Codigo, GrupoPermissao.Nome.
+  - Sequências geradas pelo banco: RomaneioSequence (para OrdemServico.Romaneio) e MatriculaSequence (para Funcionario.Matricula). Ambas estão criadas nas migrations e configuradas no model.
+  - Relacionamentos com DeleteBehavior.Restrict onde aplicável (ex.: vínculo Veículo→Cliente, Usuario→Funcionario, etc.).
+
+Endpoints expostos (resumo por controller)
+- Cliente — rota: /api/cliente
   - GET /api/cliente
-  - GET /api/cliente/{CpfCnpj}
+  - GET /api/cliente/{cpfCnpj}
   - POST /api/cliente
-  - PUT /api/cliente/{CpfCnpj}
-  - DELETE /api/cliente/{CpfCnpj} (soft delete)
+  - PUT /api/cliente/{cpfCnpj}
+  - DELETE /api/cliente/{cpfCnpj} (soft delete)
 
-- Veículo (api/veiculo)
+- Veículo — rota: /api/veiculo
   - GET /api/veiculo
   - GET /api/veiculo/{placa}
   - POST /api/veiculo
   - PUT /api/veiculo/{placa}
   - DELETE /api/veiculo/{placa} (soft delete)
 
-- Ordem de Serviço (api/ordemservico)
+- Ordem de Serviço — rota: /api/ordemservico
   - GET /api/ordemservico
-  - GET /api/ordemservico/placa/{placa}
+  - GET /api/ordemservico/{placa}
   - POST /api/ordemservico
   - PUT /api/ordemservico/{romaneio}
   - DELETE /api/ordemservico/{romaneio} (soft delete)
 
-- Cargo (api/cargo)
+- Cargo — rota: /api/cargo
   - GET /api/cargo
   - GET /api/cargo/{nome}
   - POST /api/cargo
-  - DELETE /api/cargo/{nome} (soft delete, valida vínculo com funcionários)
+  - DELETE /api/cargo/{nome} (soft delete com validação de vínculo)
 
-Observações técnicas
-- Parâmetros de rota corrigidos: Cliente usa CpfCnpj; Veículo usa placa. Essas alterações já estão refletidas nas controllers.
-- Soft delete implementado via campo Ativo nas entidades.
-- Normalizadores: PlacaNormalizado, TelefoneNormalizado, EmailNormalizado, StatusNormalizado.
+- Funcionário — rota: /api/funcionario
+  - GET /api/funcionario
+  - GET /api/funcionario/{matricula}
+  - POST /api/funcionario (rota protegida com [Authorize] para criação)
+  - PUT /api/funcionario/{matricula}
+  - DELETE /api/funcionario/{matricula} (soft delete)
+
+- Usuário — rota: /api/usuario
+  - GET /api/usuario/{matricula} (Authorize)
+  - POST /api/usuario/Criar (Authorize)
+  - POST /api/usuario/Login
+  - POST /api/usuario/Alterar-Senha (Authorize)
+  - POST /api/usuario/Resetar-Senha (Authorize)
+
+- Teste (autorização) — rota: /api/teste
+  - GET /api/teste/teste (requer token JWT)
+
+Normalização e validação
+- Normalizadores: DocumentoNormalized, PlacaNormalizado, NomeNormalizado, TelefoneNormalized, EmailNormalized, StatusNormalizado, StatusOrdemServicoNormalized.
+- Validações específicas: validação de CPF/CNPJ, validações por DTO para Cliente/Veículo/OrdemServico.
+
+Segurança
+- JWT: implementação em Security/ (JwtService, JwtSettings) e extensão em Extensions/JwtExtesions.cs; autenticação adicionada via AddJwtAuthentication em Program.cs.
+- Senhas: hash com BCrypt (Shared/Senhas.cs).
+
+Pacotes / dependências relevantes
+- Microsoft.EntityFrameworkCore, Microsoft.EntityFrameworkCore.SqlServer, Microsoft.EntityFrameworkCore.Tools
+- Microsoft.AspNetCore.Authentication.JwtBearer
+- BCrypt.Net-Next
+- Swashbuckle.AspNetCore (Swagger)
+- Serilog.AspNetCore + sinks (pacotes presentes mas sem configuração ativa no Program.cs)
 
 Como executar localmente
 1. Instalar .NET 10 SDK
-2. Configurar connection string "DefaultConnection" em appsettings.json
-3. Aplicar migrations: `dotnet ef database update`
-4. Executar: `dotnet run` ou via Visual Studio (F5)
+2. Ajustar connection string "DefaultConnection" em appsettings.json
+3. Aplicar migrations: dotnet ef database update
+4. Executar: dotnet run ou via Visual Studio (F5)
 
 Build e testes
-- Build: `dotnet build` — compilação local foi executada e foi bem‑sucedida.
-- Testes: não há suíte de testes automatizada no repositório; recomenda‑se adicionar xUnit/NUnit
+- Build: dotnet build — compilação local aceita (recomenda‑se rodar localmente para confirmar em sua máquina).
+- Testes: o repositório contém projeto de testes separado (mecanica.Tests) — não está documentado/atualizado aqui; não há suíte de testes integrada neste README.
 
-O que foi implementado além do previsto
-- Entidade Cargo e endpoints completos (não previsto inicialmente).
-- Modelos e migrações para Funcionario e Usuario adicionados (evolução do projeto).
-
-O que está pendente (prioridade)
-1. Implementar controllers e services para Funcionario e Usuario
-2. Login / Autenticação (JWT/Identity) e autorização por roles
-3. Middleware global de exceções e logging estruturado (Serilog)
-4. Testes automatizados e CI
-5. Front‑end Blazor (telas: Cliente, Funcionário, Permissões, Ordem de Serviço, Relatórios, Login)
-
-Changelog (resumo)
-- 2026-09-05: Atualizar/SoftDelete em OrdemServico implementados; SoftDeleteAsync padronizado; Placa corrigida; Cargo implementado; migrations para Funcionario/Usuario adicionadas; build OK.
-- 2026-08-30: Backlog Blazor documentado; correções de nomes e remoção de NotImplementedException.
-
+Pontos pendentes / recomendações
+1. Revisar rotas e nomes nos endpoints de Usuário (algumas rotas usam segmentos com hífen e letra maiúscula — padronizar se desejar).
+2. Ativar configuração central de logging estruturado (Serilog) em Program.cs se for utilizar os pacotes já adicionados.
+3. Implementar políticas de autorização baseadas em permissões/roles (já existem entidades Permissao/GrupoPermissao modeladas).
+4. Adicionar testes automatizados (xUnit/NUnit) no projeto de testes.
 
 Contato
 - Repositório remoto: https://github.com/jamorim40/CRUD_Oficina_Mecanica
 
 Licença
-- Sem licença especificada (adicionar conforme política do projeto).
+- Sem licença especificada no repositório.
 
 ---
 
-Este README foi atualizado com base no estado atual do repositório e nas instruções fornecidas.
+Este README foi atualizado com base no estado atual do código-fonte (2026-10-18). O projeto de testes existente na solução foi deliberadamente excluído desta documentação conforme solicitado.

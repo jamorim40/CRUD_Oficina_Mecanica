@@ -4,6 +4,7 @@ using Mecanica.Normalizers;
 using Mecanica.Services.Interfaces;
 using Mecanica.Shared;
 using Mecanica.Validations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +35,7 @@ namespace Mecanica.Controllers
             return resultado.ToActionResult(this);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Post(CriarFuncionarioDtoRequest dto)
         {

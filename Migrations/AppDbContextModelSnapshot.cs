@@ -156,6 +156,55 @@ namespace Mecanica.Migrations
                     b.ToTable("Funcionarios");
                 });
 
+            modelBuilder.Entity("Mecanica.Models.Entities.GrupoPermissao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("GrupoPermissoes");
+                });
+
+            modelBuilder.Entity("Mecanica.Models.Entities.GrupoPermissaoItem", b =>
+                {
+                    b.Property<int>("GrupoPermissaoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissaoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GrupoPermissaoId", "PermissaoId");
+
+                    b.HasIndex("PermissaoId");
+
+                    b.ToTable("GrupoPermissaoItens");
+                });
+
             modelBuilder.Entity("Mecanica.Models.Entities.OrdemServico", b =>
                 {
                     b.Property<int>("Id")
@@ -203,6 +252,40 @@ namespace Mecanica.Migrations
                     b.HasIndex("VeiculoId");
 
                     b.ToTable("OrdemServicos");
+                });
+
+            modelBuilder.Entity("Mecanica.Models.Entities.Permissao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Codigo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Codigo")
+                        .IsUnique();
+
+                    b.ToTable("Permissoes");
                 });
 
             modelBuilder.Entity("Mecanica.Models.Entities.Usuario", b =>
@@ -264,6 +347,21 @@ namespace Mecanica.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("Mecanica.Models.Entities.UsuarioGrupoPermissao", b =>
+                {
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GrupoPermissaoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UsuarioId", "GrupoPermissaoId");
+
+                    b.HasIndex("GrupoPermissaoId");
+
+                    b.ToTable("UsuarioGrupoPermissoes");
+                });
+
             modelBuilder.Entity("Mecanica.Models.Entities.Veiculo", b =>
                 {
                     b.Property<int>("Id")
@@ -319,6 +417,25 @@ namespace Mecanica.Migrations
                     b.Navigation("Cargo");
                 });
 
+            modelBuilder.Entity("Mecanica.Models.Entities.GrupoPermissaoItem", b =>
+                {
+                    b.HasOne("Mecanica.Models.Entities.GrupoPermissao", "GrupoPermissao")
+                        .WithMany("Permissoes")
+                        .HasForeignKey("GrupoPermissaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mecanica.Models.Entities.Permissao", "Permissao")
+                        .WithMany("GruposPermissao")
+                        .HasForeignKey("PermissaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GrupoPermissao");
+
+                    b.Navigation("Permissao");
+                });
+
             modelBuilder.Entity("Mecanica.Models.Entities.OrdemServico", b =>
                 {
                     b.HasOne("Mecanica.Models.Entities.Veiculo", "Veiculo")
@@ -341,6 +458,25 @@ namespace Mecanica.Migrations
                     b.Navigation("Funcionario");
                 });
 
+            modelBuilder.Entity("Mecanica.Models.Entities.UsuarioGrupoPermissao", b =>
+                {
+                    b.HasOne("Mecanica.Models.Entities.GrupoPermissao", "GrupoPermissao")
+                        .WithMany("Usuarios")
+                        .HasForeignKey("GrupoPermissaoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mecanica.Models.Entities.Usuario", "Usuario")
+                        .WithMany("GruposPermissao")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GrupoPermissao");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("Mecanica.Models.Entities.Veiculo", b =>
                 {
                     b.HasOne("Mecanica.Models.Entities.Cliente", "Cliente")
@@ -355,6 +491,23 @@ namespace Mecanica.Migrations
             modelBuilder.Entity("Mecanica.Models.Entities.Funcionario", b =>
                 {
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Mecanica.Models.Entities.GrupoPermissao", b =>
+                {
+                    b.Navigation("Permissoes");
+
+                    b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("Mecanica.Models.Entities.Permissao", b =>
+                {
+                    b.Navigation("GruposPermissao");
+                });
+
+            modelBuilder.Entity("Mecanica.Models.Entities.Usuario", b =>
+                {
+                    b.Navigation("GruposPermissao");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,4 @@
-﻿using Mecanica.Models.Enums;
+﻿
 using System.Text.RegularExpressions;
 
 namespace Mecanica.Normalizers
@@ -7,7 +7,7 @@ namespace Mecanica.Normalizers
     {
         public static string Normalizar(string status)
         {
-            return status.Trim().ToUpper();
+            return Regex.Replace(status.Trim(), @"[\s\-_/]+", " ").ToUpper();
         }
 
        

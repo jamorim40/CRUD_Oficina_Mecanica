@@ -15,5 +15,7 @@ namespace Mecanica.Models.Entities
         public int TentativasLogin { get; set; }
         public bool Bloqueado { get; set; }
 
+        public ICollection<UsuarioGrupoPermissao> GruposPermissao { get; set; } = new List<UsuarioGrupoPermissao>();
+
     }
 }

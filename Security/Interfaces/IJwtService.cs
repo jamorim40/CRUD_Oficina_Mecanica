@@ -4,6 +4,6 @@ namespace Mecanica.Security.Interfaces
 {
     public interface IJwtService
     {
-        string GerarToken(Usuario usuario);
+        string GerarToken(Usuario usuario, IEnumerable<string> permissoes);
     }
 }

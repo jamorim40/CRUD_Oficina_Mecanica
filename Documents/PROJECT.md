@@ -1,122 +1,135 @@
 # Projeto: CRUD_Oficina_Mecanica
 
-Última atualização: 2026-09-28
+Última atualização: 2026-10-18
+
+Nota: O projeto de testes (mecanica.Tests) está presente na solução, mas foi deliberadamente excluído desta atualização — os detalhes de testes serão implementados e documentados separadamente.
 
 ## Resumo técnico
 
-- API REST para gestão de oficina mecânica.
-- Stack: .NET 10, ASP.NET Core, Entity Framework Core, SQL Server.
+- API REST para gestão de oficina mecânica (Clientes, Veículos, Ordens de Serviço, Cargos, Funcionários, Usuários).
+- Stack: .NET 10, ASP.NET Core, Entity Framework Core (SQL Server), Swagger (Swashbuckle).
 - Arquitetura em camadas: Controllers → Services → Repositories → EF Core.
-- Segurança já implementada com JWT + endpoints de usuário/login.
-- Tratamento global de exceções implementado via middleware.
+- Segurança: suporte a JWT com endpoints de usuário (criar, login, alterar/resetar senha).
+- Middleware de tratamento global de exceções implementado.
 
-## Estrutura principal
+## Estrutura principal (itens presentes no repositório)
 
-- `Controllers/` — Cliente, Veículo, OrdemServico, Cargo, Funcionario, Usuario, Teste
-- `Services/` — regras de negócio e contratos
-- `Repositories/` — persistência de dados e consultas
-- `Models/` — entidades, DTOs e enums
-- `Datas/` — `AppDbContext` e mapeamentos
-- `Migrations/` — histórico de evolução do banco
-- `Normalizers/` e `Validations/` — normalização e validações de entrada
-- `Security/` e `Extensions/` — geração de token JWT e configuração de autenticação
-- `Middleware/` — `ExcecoesMiddleware`
+- Controllers/: CargoController, ClienteController, FuncionarioController, OrdemServicoController, TesteController, UsuarioController, VeiculoController
+- Services/: interfaces e implementações (Services/Interfaces e Services/Service)
+- Repositories/: interfaces e implementações (Repositories/Interfaces e Repositories/Repository)
+- Models/: Entities, DTOs (Models/Entities, Models/Dtos/Requests, Models/Dtos/Responses), Enums
+- Datas/: AppDbContext.cs (mapeamento, índices, sequências)
+- Migrations/: histórico (lista abaixo)
+- Normalizers/: DocumentoNormalized, EmailNormalized, NomeNormalizado, PlacaNormalizado, StatusNormalizado, StatusOrdemServicoNormalized, TelefoneNormalized
+- Validations/: regras de validação por DTO (Cliente, Veiculo, OrdemServico)
+- Security/: JwtService.cs, JwtSettings.cs
+- Extensions/: DependencyInjectionExtensions.cs, JwtExtesions.cs, SwaggerExtensions.cs
+- Middleware/: ExcecoesMiddleware.cs
+- Shared/: ResultadoServico, ResultadoServicoExtensions, Senhas (hash BCrypt)
+- Configuração: appsettings.json e appsettings.Development.json
 
-## Entidades no banco
+## Migrations geradas (lista de arquivos)
 
-- Cliente
-- Veículo
-- OrdemServico
-- Cargo
-- Funcionario
-- Usuario
+- Migrations/20260820204645_CreationOfMigrations.cs
+- Migrations/20260820204645_CreationOfMigrations.Designer.cs
+- Migrations/20260904005537_addCpfCnpj.cs
+- Migrations/20260904005537_addCpfCnpj.Designer.cs
+- Migrations/20260904005905_CpfCnpfObrigatorio.cs
+- Migrations/20260904005905_CpfCnpfObrigatorio.Designer.cs
+- Migrations/20260904233837_AddCargoFuncionarioUsuario.cs
+- Migrations/20260904233837_AddCargoFuncionarioUsuario.Designer.cs
+- Migrations/20260909172408_Alteracao entidade Fucnionario.cs
+- Migrations/20260909172408_Alteracao entidade Fucnionario.Designer.cs
+- Migrations/20260910174553_Usuario novos campos.cs
+- Migrations/20260910174553_Usuario novos campos.Designer.cs
+- Migrations/20261018195627_CriacaoDePermissoes.Designer.cs
+- Migrations/AppDbContextModelSnapshot.cs
 
-Observações:
-- `Cliente.CpfCnpj`, `Veiculo.Placa`, `Cargo.Nome`, `Funcionario.CpfCnpj`, `Funcionario.Matricula` e `Usuario.Login` possuem restrições de unicidade.
-- `OrdemServico.Romaneio` é gerado por sequência (`RomaneioSequence`).
-- `Funcionario.Matricula` é gerada por sequência (`MatriculaSequence`).
-- Soft delete aplicado por campo `Ativo`.
+## Modelagem e comportamento relevante (AppDbContext)
 
-## Endpoints implementados
+- Índices únicos configurados: Cliente.CpfCnpj, Veiculo.Placa, Cargo.Nome, Funcionario.CpfCnpj, Funcionario.Matricula, Usuario.Login, Permissao.Codigo, GrupoPermissao.Nome.
+- Sequências no banco: RomaneioSequence (OrdemServico.Romaneio) e MatriculaSequence (Funcionario.Matricula) — geradas e referenciadas nas migrations e no modelo.
+- Relacionamentos com DeleteBehavior.Restrict em FK sensíveis (ex.: Veiculo→Cliente, Usuario→Funcionario, GrupoPermissaoItem/UsuarioGrupoPermissao).
+- Soft delete aplicado via propriedade Ativo nas entidades quando aplicável.
 
-### Cliente (`/api/cliente`)
-- `GET /api/cliente`
-- `GET /api/cliente/{cpfCnpj}`
-- `POST /api/cliente`
-- `PUT /api/cliente/{cpfCnpj}`
-- `DELETE /api/cliente/{cpfCnpj}` (soft delete)
+## Endpoints implementados (resumo)
 
-### Veículo (`/api/veiculo`)
-- `GET /api/veiculo`
-- `GET /api/veiculo/{placa}`
-- `POST /api/veiculo`
-- `PUT /api/veiculo/{placa}`
-- `DELETE /api/veiculo/{placa}` (soft delete)
+### Cliente (rota: /api/cliente)
+- GET /api/cliente
+- GET /api/cliente/{cpfCnpj}
+- POST /api/cliente
+- PUT /api/cliente/{cpfCnpj}
+- DELETE /api/cliente/{cpfCnpj} (soft delete)
 
-### Ordem de Serviço (`/api/ordemservico`)
-- `GET /api/ordemservico`
-- `GET /api/ordemservico/{placa}`
-- `POST /api/ordemservico`
-- `PUT /api/ordemservico/{romaneio}`
-- `DELETE /api/ordemservico/{romaneio}` (soft delete)
+### Veículo (rota: /api/veiculo)
+- GET /api/veiculo
+- GET /api/veiculo/{placa}
+- POST /api/veiculo
+- PUT /api/veiculo/{placa}
+- DELETE /api/veiculo/{placa} (soft delete)
 
-### Cargo (`/api/cargo`)
-- `GET /api/cargo`
-- `GET /api/cargo/{nome}`
-- `POST /api/cargo`
-- `DELETE /api/cargo/{nome}` (soft delete com validação de vínculo)
+### Ordem de Serviço (rota: /api/ordemservico)
+- GET /api/ordemservico
+- GET /api/ordemservico/{placa}
+- POST /api/ordemservico
+- PUT /api/ordemservico/{romaneio}
+- DELETE /api/ordemservico/{romaneio} (soft delete)
 
-### Funcionário (`/api/funcionario`)
-- `GET /api/funcionario`
-- `GET /api/funcionario/{matricula}`
-- `POST /api/funcionario`
-- `PUT /api/funcionario/{matricula}`
-- `DELETE /api/funcionario/{matricula}` (soft delete)
+### Cargo (rota: /api/cargo)
+- GET /api/cargo
+- GET /api/cargo/{nome}
+- POST /api/cargo
+- DELETE /api/cargo/{nome} (soft delete com validação de vínculo)
 
-### Usuário (`/api/usuario`)
-- `GET /api/usuario/{matricula}`
-- `POST /api/usuario/Criar usuário`
-- `POST /api/usuario/Login`
-- `POST /api/usuario/Alterar senha`
-- `POST /api/usuario/Resetar senha`
-- `GET /api/usuario/teste` (requer token JWT)
+### Funcionário (rota: /api/funcionario)
+- GET /api/funcionario
+- GET /api/funcionario/{matricula}
+- POST /api/funcionario (rota protegida com [Authorize])
+- PUT /api/funcionario/{matricula}
+- DELETE /api/funcionario/{matricula} (soft delete)
 
-### Teste de autorização (`/api/teste`)
-- `GET /api/teste/teste` (requer token JWT)
+### Usuário (rota: /api/usuario)
+- GET /api/usuario/{matricula} (Authorize)
+- POST /api/usuario/Criar (Authorize)
+- POST /api/usuario/Login
+- POST /api/usuario/Alterar-Senha (Authorize)
+- POST /api/usuario/Resetar-Senha (Authorize)
+
+### Teste (rota: /api/teste)
+- GET /api/teste/teste (requer token JWT)
+
+## Normalização e validação
+
+- Normalizadores disponíveis: NomeNormalizado, TelefoneNormalized, EmailNormalized, DocumentoNormalized, PlacaNormalizado, StatusNormalizado, StatusOrdemServicoNormalized.
+- Validações: classes de validação por DTO presentes em Validations/ e Validations/Interfaces (Cliente, Veiculo, OrdemServico, etc.).
 
 ## Segurança e autenticação
 
-- JWT configurado em `Program.cs` com `AddJwtAuthentication`.
-- Swagger configurado com esquema Bearer.
-- `UsuarioService` implementa:
-  - criação de usuário com login automático e senha inicial
-  - login com geração de token
-  - bloqueio após tentativas inválidas
-  - fluxo de primeiro acesso (troca de senha)
-  - reset de usuário
-- Senhas armazenadas com hash BCrypt (`Shared/Senhas.cs`).
+- JWT: implementação em Security/ e extensão de configuração em Extensions/JwtExtesions.cs; AddJwtAuthentication usado em Program.cs.
+- Senhas: hashing com BCrypt (Shared/Senhas.cs).
 
-## Tratamento de erros
+## Dependências (resumo do csproj)
 
-- `ExcecoesMiddleware` centraliza exceções e converte para resposta JSON.
-- Mapeamentos atuais:
-  - `NaoEncontradoException` → 404
-  - `RequisicaoInvalidaException` → 400
-  - `RegraNegocioException` → 409
-  - Demais exceções → 500
+- Microsoft.EntityFrameworkCore (+SqlServer, Tools)
+- Microsoft.AspNetCore.Authentication.JwtBearer
+- BCrypt.Net-Next
+- Swashbuckle.AspNetCore
+- Serilog.AspNetCore, Serilog.Sinks.Console, Serilog.Sinks.File (pacotes presentes; configuração ativa de Serilog não aplicada em Program.cs)
 
-## Estado atual
+## Como executar localmente
 
-Implementado:
-- CRUD/soft delete de Cliente, Veículo, Ordem de Serviço, Cargo e Funcionário.
-- Módulo de Usuário com login e JWT.
-- Normalização de dados (nome, telefone, email, documento, placa, status).
-- Middleware global de exceções.
-- Migrations para evolução do modelo já aplicadas ao projeto.
+1. Instalar .NET 10 SDK
+2. Configurar connection string "DefaultConnection" em appsettings.json
+3. Aplicar migrations: dotnet ef database update
+4. Executar: dotnet run ou carregar a solução no Visual Studio (F5)
 
-Pendente / melhoria:
-- Padronizar rotas de `UsuarioController` (atualmente há segmentos com espaço).
-- Definir política de roles/perfis e expandir autorização além dos endpoints de teste.
-- Configurar de fato logging estruturado (há pacotes Serilog no projeto, sem configuração ativa em `Program.cs`).
-- Criar suíte de testes automatizados (não há testes no repositório).
-- Evoluir CI/CD e documentação de deploy.
+## Observações e itens pendentes
+
+1. Padronizar rotas/nomes nos endpoints de Usuário (algumas rotas usam segmentos com caracteres especiais/maiúsculas).
+2. Ativar logging estruturado (Serilog) caso queira aproveitar os pacotes adicionados.
+3. Implementar política de autorização baseada em permissões/roles (entidades Permissao/GrupoPermissao já modeladas).
+4. Adicionar e implementar a suíte de testes no projeto mecanica.Tests (projeto existe, mas não documentado/atualizado aqui).
+
+---
+
+Documento gerado automaticamente com base no estado atual do repositório (2026-10-18). Testes permanecem fora desta atualização conforme solicitado.

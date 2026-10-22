@@ -44,5 +44,34 @@ namespace Mecanica.Repositories.Repository
             _appDbContext.Usuarios.Update(usuario);
             await _appDbContext.SaveChangesAsync();
         }
+
+        public async Task<List<string>> ObterPermissoesAsync(int usuarioId)
+        {
+            return await _appDbContext.UsuarioGrupoPermissoes
+                .Where(ugp => ugp.UsuarioId == usuarioId)
+                .SelectMany(ugp => ugp.GrupoPermissao.Permissoes)
+                .Select(ugp => ugp.Permissao.Codigo)
+                .Distinct()
+                .ToListAsync();
+        }
+
+        public async Task<bool> UsuarioTemPermissaoAsync(int usuarioId, string permissao)
+        {
+            return await _appDbContext.UsuarioGrupoPermissoes
+                .Where(ugp => ugp.UsuarioId == usuarioId)
+                .SelectMany(ugp => ugp.GrupoPermissao.Permissoes)
+                .AnyAsync(p => p.Permissao.Codigo == permissao);
+        }
+
+        public async Task SoftDelete(int matricula)
+        {
+            var usuario = await _appDbContext.Usuarios.FirstOrDefaultAsync(u => u.Funcionario!.Matricula == matricula);
+            if (usuario is null)
+            {
+                return;
+            } 
+            usuario.Ativo = false;
+            await _appDbContext.SaveChangesAsync();
+        }
     }
 }

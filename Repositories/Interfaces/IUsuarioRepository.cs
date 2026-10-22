@@ -9,5 +9,8 @@ namespace Mecanica.Repositories.Interfaces
         Task CriarAsync(Usuario usuario);
         Task AtualizarAsync(Usuario usuario);
         Task ResetarUsuarioAsync(Usuario usuario);
+        Task <List<string>> ObterPermissoesAsync(int usuarioId);
+        Task <bool> UsuarioTemPermissaoAsync(int usuarioId, string permissao);
+        Task SoftDelete(int matricula);
     }
 }

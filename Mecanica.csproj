@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Mecanica.Tests\**" />
+    <Content Remove="Mecanica.Tests\**" />
+    <EmbeddedResource Remove="Mecanica.Tests\**" />
+    <None Remove="Mecanica.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Configurations\" />
     <Folder Include="Routes\" />
   </ItemGroup>
@@ -29,6 +36,8 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
   </ItemGroup>
 
 </Project>

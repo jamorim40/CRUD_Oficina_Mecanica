@@ -1,10 +1,11 @@
 ﻿using Mecanica.Exceptions;
 using Mecanica.Models.Dtos.Requests.OrdemServico;
 using Mecanica.Normalizers;
+using Mecanica.Security.Autorizacao;
 using Mecanica.Services.Interfaces;
-using Mecanica.Validations.Interfaces.OrdemServico;
 using Mecanica.Shared;
-using Microsoft.AspNetCore.Http;
+using Mecanica.Validations.Interfaces.OrdemServico;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mecanica.Controllers
@@ -22,6 +23,7 @@ namespace Mecanica.Controllers
             _ordemServicoValidador = ordemServicoValidador;
         }
 
+        [RequirePermission("OS_CONSULTAR")]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -29,6 +31,7 @@ namespace Mecanica.Controllers
             return Ok(ordemServico);
         }
 
+        [RequirePermission("OS_CONSULTAR")]
         [HttpGet("{placa}")]
         public async Task<IActionResult> GetByPlaca(string placa)
         {
@@ -42,29 +45,31 @@ namespace Mecanica.Controllers
 
         }
 
+        [RequirePermission("OS_CRIAR")]
         [HttpPost]
-        public async Task<IActionResult> Post(CriarOrdemServicoDtoRequest dto)
+        public async Task<IActionResult> Post(CriarOrdemServicoDtoRequest dtoCriar)
         {
-            var resultado = await _ordemServicoService.CriarAsync(dto);
+            var resultado = await _ordemServicoService.CriarAsync(dtoCriar);
             if (!resultado.Sucesso)
                 return BadRequest(resultado.Mensagem);
             return Ok(resultado.Conteudo);
         }
 
+        [RequirePermission("OS_EDITAR")]
         [HttpPut("{romaneio}")]
-        public async Task<IActionResult> Put(int romaneio, AtualizarOrdemServicoDtoRequest dto)
+        public async Task<IActionResult> Put(int romaneio, AtualizarOrdemServicoDtoRequest dtoAtualizar)
         {
-            if (!string.IsNullOrWhiteSpace(dto.Status))
+            if (!string.IsNullOrWhiteSpace(dtoAtualizar.Status))
             {
-                dto.Status = StatusNormalizado.Normalizar(dto.Status);
+                dtoAtualizar.Status = StatusNormalizado.Normalizar(dtoAtualizar.Status);
             }
 
-            var resultado = await _ordemServicoService.AtualizarAsync(romaneio, dto);
+            var resultado = await _ordemServicoService.AtualizarAsync(romaneio, dtoAtualizar);
             return resultado.ToActionResult(this);
         }
 
+        [RequirePermission("OS_APAGAR")]
         [HttpDelete("{romaneio}")]
-
         public async Task<IActionResult> Delete(int romaneio)
         {
             var resultado = await _ordemServicoService.SoftDelete(romaneio);

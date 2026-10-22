@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using System.Xml.XPath;
+using Mecanica.Normalizers;
 
 namespace Mecanica.Validations
 {
@@ -47,14 +47,11 @@ namespace Mecanica.Validations
         {
             if (string.IsNullOrWhiteSpace(cnpj)) return false;
 
-            // Remove pontuações mantendo letras e números, e converte para maiúsculo
-            cnpj = Regex.Replace(cnpj, @"[^a-zA-Z0-9]", "").ToUpper();
+            // Remove qualquer caractere que não seja número
+            cnpj = Regex.Replace(cnpj, @"[^\d]", "");
 
-            // O CNPJ deve ter exatamente 14 caracteres
+            // O CNPJ deve ter exatamente 14 dígitos
             if (cnpj.Length != 14) return false;
-
-            // Os dois últimos caracteres obrigatoriamente precisam ser numéricos (Dígitos verificadores)
-            if (!char.IsDigit(cnpj[12]) || !char.IsDigit(cnpj[13])) return false;
 
             int[] multiplicador1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
             int[] multiplicador2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
@@ -62,11 +59,7 @@ namespace Mecanica.Validations
             // Validação do Primeiro Dígito
             int soma = 0;
             for (int i = 0; i < 12; i++)
-            {
-                // Regra Alfanumérica: Subtrai 48 do valor ASCII do caractere
-                int valorUnificado = cnpj[i] - 48;
-                soma += valorUnificado * multiplicador1[i];
-            }
+                soma += (cnpj[i] - '0') * multiplicador1[i];
 
             int resto = soma % 11;
             int digito1 = resto < 2 ? 0 : 11 - resto;
@@ -76,10 +69,7 @@ namespace Mecanica.Validations
             // Validação do Segundo Dígito
             soma = 0;
             for (int i = 0; i < 13; i++)
-            {
-                int valorUnificado = cnpj[i] - 48;
-                soma += valorUnificado * multiplicador2[i];
-            }
+                soma += (cnpj[i] - '0') * multiplicador2[i];
 
             resto = soma % 11;
             int digito2 = resto < 2 ? 0 : 11 - resto;
@@ -89,12 +79,20 @@ namespace Mecanica.Validations
 
         public static bool ValidarCpfCnpj(string documento)
         {
-            documento = Regex.Replace(documento, @"[^\dA-Za-z]", "");
+            if (string.IsNullOrWhiteSpace(documento))
+                return false;
 
-            if (documento.Length == 11)
-                return ValidarCpf(documento);
-            if (documento.Length == 14)
-                return ValidarCnpj(documento);
+            // Normaliza removendo caracteres especiais
+            documento = DocumentoNormalized.Normalizar(documento);
+
+            // Considera apenas os dígitos para validação
+            var apenasDigitos = Regex.Replace(documento, @"[^\d]", "");
+
+            if (apenasDigitos.Length == 11)
+                return ValidarCpf(apenasDigitos);
+            if (apenasDigitos.Length == 14)
+                return ValidarCnpj(apenasDigitos);
+
             return false;
         }
         
