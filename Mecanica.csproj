@@ -14,6 +14,13 @@
     <None Remove="Mecanica.Tests\**" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Compile Remove="Mecanica.Blazor\**" />
+		<Content Remove="Mecanica.Blazor\**" />
+		<EmbeddedResource Remove="Mecanica.Blazor\**" />
+		<None Remove="Mecanica.Blazor\**" />
+	</ItemGroup>
+
   <ItemGroup>
     <Folder Include="Configurations\" />
     <Folder Include="Routes\" />

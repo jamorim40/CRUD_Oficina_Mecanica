@@ -2,5 +2,6 @@
   <Folder Name="/mecanica.Tests/">
     <Project Path="mecanica.Tests/Mecanica.Tests.csproj" />
   </Folder>
+  <Project Path="Mecanica.Blazor/Mecanica.Blazor.csproj" Id="520713e7-045e-401a-a279-029ef18c0044" />
   <Project Path="Mecanica.csproj" />
 </Solution>
