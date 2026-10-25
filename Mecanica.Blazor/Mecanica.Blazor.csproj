@@ -8,10 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <Folder Include="Shared\" />
-    <Folder Include="Security\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

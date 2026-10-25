@@ -1,0 +1,18 @@
+﻿@page "/estado-autenticacao"
+@using Microsoft.AspNetCore.Components.Authorization
+
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<PageTitle>Estado da autenticação</PageTitle>
+
+<h3>Estado da autenticação</h3>
+
+<AuthorizeView>
+    <Authorized Context="contexto">
+        <p>Usuário autenticado: @contexto.User.Identity?.Name</p>
+        <p>Autenticado: @contexto.User.Identity?.IsAuthenticated</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Usuário não autenticado.</p>
+    </NotAuthorized>
+</AuthorizeView>

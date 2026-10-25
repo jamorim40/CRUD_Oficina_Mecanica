@@ -1,0 +1,78 @@
+﻿@page "/login"
+@using Mecanica.Blazor.Models.Auth
+@using Mecanica.Blazor.Services
+@using Mecanica.Blazor.Security
+@inject ProvedorEstadoAutenticaçaoPersonalizado ProvedorEstadoAutenticaçaoPersonalizado
+
+@inject AuthService AuthService
+
+<h3>Login</h3>
+
+<EditForm Model="model" OnValidSubmit="EfetuarLogin" FormName="LoginForm">
+
+    <div class="mb-3">
+        <label>Usuário</label>
+        <InputText class="form-control"
+                   @bind-Value="model.Login" />
+    </div>
+
+    <div class="mb-3">
+        <label>Senha</label>
+        <InputText type="password"
+                   class="form-control"
+                   @bind-Value="model.Senha" />
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary">
+        Entrar
+    </button>
+
+</EditForm>
+
+@if (!string.IsNullOrWhiteSpace(mensagem))
+{
+    <div class="alert alert-danger mt-3">
+        @mensagem
+    </div>
+}
+
+@code {
+
+    private LoginRequest model = new();
+
+    private string? mensagem;
+
+    private async Task EfetuarLogin()
+    {
+
+        try
+        {
+
+            var resultado = await AuthService.LoginAsync(model);
+
+            if (resultado is null)
+            {
+                mensagem = "Falha ao acessar a API.";
+                return;
+            }
+
+            if (!resultado.Sucesso)
+            {
+                mensagem = resultado.Mensagem;
+                return;
+            }
+            ProvedorEstadoAutenticaçaoPersonalizado.AutenticarUsuario(model.Login);
+            mensagem = "Login realizado com sucesso!"; 
+
+            //Console.WriteLine(resultado.Token);
+
+            mensagem = "Login realizado com sucesso!";
+        }
+        catch (Exception ex)
+        {
+            mensagem = ex.Message;
+        }
+    }
+
+}
