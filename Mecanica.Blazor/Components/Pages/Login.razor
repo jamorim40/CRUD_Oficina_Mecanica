@@ -2,7 +2,7 @@
 @using Mecanica.Blazor.Models.Auth
 @using Mecanica.Blazor.Services
 @using Mecanica.Blazor.Security
-@inject ProvedorEstadoAutenticaçaoPersonalizado ProvedorEstadoAutenticaçaoPersonalizado
+@inject ProvedorEstadoAutenticacaoPersonalizado ProvedorEstadoAutenticacaoPersonalizado
 
 @inject AuthService AuthService
 
@@ -27,6 +27,11 @@
             class="btn btn-primary">
         Entrar
     </button>
+
+    <!--Teste-->
+    <NavLink href="/estado-autenticacao">
+        Testar estado da autenticação
+    </NavLink>
 
 </EditForm>
 
@@ -62,12 +67,15 @@
                 mensagem = resultado.Mensagem;
                 return;
             }
-            ProvedorEstadoAutenticaçaoPersonalizado.AutenticarUsuario(model.Login);
-            mensagem = "Login realizado com sucesso!"; 
-
-            //Console.WriteLine(resultado.Token);
-
+            ProvedorEstadoAutenticacaoPersonalizado.AutenticarUsuario(model.Login);
             mensagem = "Login realizado com sucesso!";
+            var estado = await ProvedorEstadoAutenticacaoPersonalizado.GetAuthenticationStateAsync();
+
+            Console.WriteLine(
+                $"Usuário: {estado.User.Identity?.Name} | " +
+                $"Autenticado: {estado.User.Identity?.IsAuthenticated}");
+
+           
         }
         catch (Exception ex)
         {

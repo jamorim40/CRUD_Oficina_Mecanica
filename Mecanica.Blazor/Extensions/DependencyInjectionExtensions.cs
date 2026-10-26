@@ -1,0 +1,21 @@
+﻿using Mecanica.Blazor.Security;
+using Mecanica.Blazor.Security.Sessions;
+using Mecanica.Blazor.Services;
+using Microsoft.AspNetCore.Components.Authorization;
+
+namespace Mecanica.Blazor.Extensions
+{
+    public static class DependencyInjectionExtensions
+    {
+        public static IServiceCollection AddInjecaoDependencias(this IServiceCollection services)
+        {
+            services.AddScoped<AuthService>();
+            services.AddScoped<ProvedorEstadoAutenticacaoPersonalizado>();
+            services.AddScoped<AuthenticationStateProvider>(provedor => 
+                provedor.GetRequiredService<ProvedorEstadoAutenticacaoPersonalizado>());
+            services.AddMemoryCache();
+            services.AddSingleton<ISessaoStore, SessaoStoreEmMemoria>();
+            return services;
+        }
+    }
+}

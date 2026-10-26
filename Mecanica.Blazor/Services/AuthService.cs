@@ -1,5 +1,6 @@
 ﻿using Mecanica.Blazor.Models;
 using Mecanica.Blazor.Models.Auth;
+using System.Net;
 
 namespace Mecanica.Blazor.Services
 {
@@ -16,18 +17,18 @@ namespace Mecanica.Blazor.Services
             try
             {
                 var client = _httpClientFactory.CreateClient("MecanicaApi");
-
-                Console.WriteLine($"BaseAddress: {client.BaseAddress}");
-
                 var response = await client.PostAsJsonAsync(
                     "api/Usuario/login",
                     loginRequest);
 
-                Console.WriteLine($"Status: {response.StatusCode}");
-
-                var conteudo = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine(conteudo);
+                if(response.StatusCode == HttpStatusCode.Conflict)
+                {
+                    return new LoginResponse
+                    {
+                        Sucesso = false,
+                        Mensagem = "Credenciais inválidas."
+                    };
+                }
 
                 if (!response.IsSuccessStatusCode)
                     return null;

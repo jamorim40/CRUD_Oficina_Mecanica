@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Mecanica.API.csproj" />
+    <ProjectReference Include="..\Mecanica.Blazor\Mecanica.Blazor.csproj" />
   </ItemGroup>
 
 </Project>
