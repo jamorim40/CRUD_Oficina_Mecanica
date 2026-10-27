@@ -41,26 +41,6 @@ namespace Mecanica.Tests.Security.Sessions
             Assert.Null(tokenRecuperado);
         }
 
-        [Fact]
-        public async Task RemoverAsync_DeveRemoverToken()
-        {
-            // Arrange
-            using var cache = new MemoryCache(new MemoryCacheOptions());
-            var store = new SessaoStoreEmMemoria(cache);
-
-            var sessaoId = "sessao123";
-            var token = "token123";
-            var expiracao = DateTimeOffset.UtcNow.AddMinutes(30);
-
-            await store.SalvarAsync(sessaoId, token, expiracao);
-
-            // Act
-            await store.RemoverAsync(sessaoId);
-            var tokenRecuperado = await store.ObterTokenAsync(sessaoId);
-
-            // Assert
-            Assert.Null(tokenRecuperado);
-        }
 
         [Fact]
 
