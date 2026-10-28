@@ -43,3 +43,11 @@ app.MapRazorComponents<App>()
 app.MapAuthEndpoints();
 
 app.Run();
+
+//teste de instruções de hospedagem
+
+namespace Mecanica.Blazor
+{
+    public partial class Program { }
+}
+
