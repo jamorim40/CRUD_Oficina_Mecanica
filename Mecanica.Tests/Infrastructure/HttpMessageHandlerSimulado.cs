@@ -8,16 +8,19 @@ namespace Mecanica.Tests.Infrastructure
 {
     public class HttpMessageHandlerSimulado : HttpMessageHandler
     {
-        private readonly HttpResponseMessage _respostaSimulada;
+        private readonly Func<HttpResponseMessage> _criarResposta;
 
-        public HttpMessageHandlerSimulado(HttpResponseMessage respostaSimulada)
+        public HttpMessageHandlerSimulado(Func<HttpResponseMessage> criarResposta)
         {
-            _respostaSimulada = respostaSimulada;
+            _criarResposta = criarResposta;
         }
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(_respostaSimulada);
+            var response = _criarResposta();
+
+            Console.WriteLine($"[HTTP SIMULADO] {request.Method} {request.RequestUri} => {(int)response.StatusCode}");
+            return Task.FromResult(response);
         }
     }
 }

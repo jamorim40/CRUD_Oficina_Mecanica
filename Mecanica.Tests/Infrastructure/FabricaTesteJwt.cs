@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+
 
 namespace Mecanica.Tests.Infrastructure
 {
     public static class FabricaTesteJwt
     {
+        
         public static string GerarTokenValido()
         {
             var token = new JwtSecurityToken

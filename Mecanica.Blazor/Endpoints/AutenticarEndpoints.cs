@@ -12,8 +12,8 @@ namespace Mecanica.Blazor.Endpoints
             endpoints.MapPost("/auth/login", async (LoginRequest loginRequest, AutenticacaoServices authService, ISessaoStore sessaoStore) =>
             {
                 var resultado = await authService.LoginAsync(loginRequest);
-                if(resultado is null)
-                    return Results.Problem("Falha na comunicação com a API.", statusCode:502);
+                if (resultado is null)
+                    return Results.Problem("Falha na comunicação com a API.", statusCode: 502);
 
                 if (!resultado.Sucesso)
                 {
@@ -21,12 +21,23 @@ namespace Mecanica.Blazor.Endpoints
                         new { mensagem = resultado.Mensagem },
                         statusCode: StatusCodes.Status401Unauthorized);
                 }
-
+                JwtSecurityToken jwt;
                 var sessaoId = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
-                var manipuladorToken = new JwtSecurityTokenHandler();
-                var jwt = manipuladorToken.ReadJwtToken(resultado.Token);
+
+                try
+                {
+                    var manipuladorToken = new JwtSecurityTokenHandler();
+                    jwt = manipuladorToken.ReadJwtToken(resultado.Token);
+
+
+                }
+                catch (ArgumentException)
+                {
+                    return Results.Problem("A API retornou um token inválido. ", statusCode: StatusCodes.Status502BadGateway);
+                }
+
                 var expiracao = new DateTimeOffset(jwt.ValidTo, TimeSpan.Zero);
-                if(expiracao <= DateTimeOffset.UtcNow)
+                if (expiracao <= DateTimeOffset.UtcNow)
                 {
                     return Results.Problem("O token JWT retornado pela API expirou.", statusCode: StatusCodes.Status502BadGateway);
 
@@ -39,11 +50,11 @@ namespace Mecanica.Blazor.Endpoints
                 }
                 catch (Exception)
                 {
-                    return Results.Problem($"Não foi possivel estabelecer a sessão. ", statusCode: StatusCodes.Status503ServiceUnavailable);
+                    return Results.Problem("Não foi possível estabelecer a sessão.", statusCode: StatusCodes.Status503ServiceUnavailable);
                 }
-            
                 return Results.Ok("Credenciais válidas.");
             });
+
             return endpoints;
         }
     }
