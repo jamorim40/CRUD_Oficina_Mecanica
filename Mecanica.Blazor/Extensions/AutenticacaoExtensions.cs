@@ -2,7 +2,7 @@
 
 namespace Mecanica.Blazor.Extensions
 {
-    public static class AuthenticationExtensions
+    public static class AutenticacaoExtensions
     {
         public static IServiceCollection AddAuthenticationBlazor(this IServiceCollection services)
         {

@@ -2,13 +2,14 @@
 using Mecanica.Blazor.Models.Auth;
 using System.Net;
 
+
 namespace Mecanica.Blazor.Services
 {
-    public class AuthService
+    public class AutenticacaoServices
     {
         //Criar serviço para consumir a API Mecanica.API para autenticação de usuários
         private readonly IHttpClientFactory _httpClientFactory;
-        public AuthService(IHttpClientFactory httpClientFactory)
+        public AutenticacaoServices(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }

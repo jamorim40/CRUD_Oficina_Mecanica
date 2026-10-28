@@ -4,7 +4,7 @@
 @using Mecanica.Blazor.Security
 @inject ProvedorEstadoAutenticacaoPersonalizado ProvedorEstadoAutenticacaoPersonalizado
 
-@inject AuthService AuthService
+@inject AutenticacaoServices AutenticacaoServices
 
 <h3>Login</h3>
 
@@ -54,7 +54,7 @@
         try
         {
 
-            var resultado = await AuthService.LoginAsync(model);
+            var resultado = await AutenticacaoServices.LoginAsync(model);
 
             if (resultado is null)
             {
