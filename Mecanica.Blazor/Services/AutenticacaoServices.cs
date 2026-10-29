@@ -1,5 +1,4 @@
-﻿using Mecanica.Blazor.Models;
-using Mecanica.Blazor.Models.Auth;
+﻿using Mecanica.Blazor.Models.Auth;
 using System.Net;
 
 
@@ -22,17 +21,32 @@ namespace Mecanica.Blazor.Services
                     "api/Usuario/login",
                     loginRequest);
 
-                if(response.StatusCode == HttpStatusCode.Conflict)
-                {
-                    return new LoginResponse
-                    {
-                        Sucesso = false,
-                        Mensagem = "Credenciais inválidas."
-                    };
-                }
-
                 if (!response.IsSuccessStatusCode)
+                {
+                    if (response.StatusCode is HttpStatusCode.Unauthorized
+                        or HttpStatusCode.Forbidden
+                        or HttpStatusCode.Conflict)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        //Console.WriteLine($"JSON recebido: {json}");
+
+                        var erro = System.Text.Json.JsonSerializer
+                            .Deserialize<ErroApiResponse>(
+                                json,
+                                new System.Text.Json.JsonSerializerOptions
+                                {
+                                    PropertyNameCaseInsensitive = true
+                                });
+
+                        return new LoginResponse
+                        {
+                            Sucesso = false,
+                            Mensagem = erro?.Mensagem ?? "Não foi possível realizar o login.",
+                        };
+                    }
+
                     return null;
+                }
 
                 return await response.Content.ReadFromJsonAsync<LoginResponse>();
             }

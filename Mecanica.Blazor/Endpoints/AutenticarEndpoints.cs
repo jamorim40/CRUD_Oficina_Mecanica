@@ -9,7 +9,11 @@ namespace Mecanica.Blazor.Endpoints
     {
         public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/auth/login", async (LoginRequest loginRequest, AutenticacaoServices authService, ISessaoStore sessaoStore) =>
+            endpoints.MapPost("/auth/login", async (
+                LoginRequest loginRequest, 
+                AutenticacaoServices authService, 
+                ISessaoStore sessaoStore,
+                HttpContext httpContext) =>
             {
                 var resultado = await authService.LoginAsync(loginRequest);
                 if (resultado is null)
@@ -52,6 +56,18 @@ namespace Mecanica.Blazor.Endpoints
                 {
                     return Results.Problem("Não foi possível estabelecer a sessão.", statusCode: StatusCodes.Status503ServiceUnavailable);
                 }
+
+                httpContext.Response.Cookies.Append(
+                    "Mecanica.Sessao",
+                    sessaoId,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Path = "/",
+                        Expires = expiracao.UtcDateTime
+                    });
                 return Results.Ok("Credenciais válidas.");
             });
 

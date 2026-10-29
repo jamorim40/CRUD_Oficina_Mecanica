@@ -22,13 +22,57 @@ namespace Mecanica.Services.Service
             _funcionarioRepository = funcionarioRepository;
             _jwtService = jwtService;
         }
+
+        public async Task<ResultadoServico<string>> LoginAsync(LoginUsuarioDtoRequest dtoResquesteLogin)
+        {
+
+            var usuario = await _repository.ObterPorLoginAsync(dtoResquesteLogin.Login);
+            if (usuario is null)
+                return ResultadoServico<string>.Falha($"Funcionário de login: {dtoResquesteLogin.Login} não encontrado.", 401);
+            if (!usuario.Ativo)
+                return ResultadoServico<string>.Falha("Funcionário está inativo.", 403);
+            if (usuario.Bloqueado)
+                return ResultadoServico<string>.Falha("Funcionário bloqueado.", 403);
+            bool senhaValida = Senhas.ValidarSenha(dtoResquesteLogin.Senha, usuario.SenhaHash!);
+            if (!senhaValida)
+            {
+                usuario.TentativasLogin += 1;
+
+                if (usuario.TentativasLogin >= maxTentativasLogin)
+                {
+                    usuario.Bloqueado = true;
+
+                    await _repository.AtualizarAsync(usuario);
+                    return ResultadoServico<string>.Falha("Funcionário bloqueado, contate seu gestor.", 403);
+                }
+                await _repository.AtualizarAsync(usuario);
+                return ResultadoServico<string>.Falha("Login ou senha incorreta.", 401);
+            }
+            if (usuario.DataPrimeiroAcesso == null)
+            {
+                usuario.DataPrimeiroAcesso = DateTime.UtcNow;
+            }
+            usuario.DataUltimoAcesso = DateTime.UtcNow;
+            usuario.TentativasLogin = 0;
+            await _repository.AtualizarAsync(usuario);
+            if (usuario.PrimeiroAcesso)
+            {
+                return ResultadoServico<string>.Falha("Primeiro acesso. É necessário alterar a senha.", 409);
+            }
+            var permissoes = await _repository.ObterPermissoesAsync(usuario.Id);
+            var token = _jwtService.GerarToken(usuario, permissoes);
+
+            return ResultadoServico<string>.Ok(token, "Login realizado com sucesso. ", 200);
+
+        }
+
         public async Task<ResultadoServico<UsuarioDtoResponse>> ObterPorMatricula(int matricula)
         {
             var usuario = await _repository.ObterPorMatriculaAsync(matricula);
             if (usuario is null)
                 return ResultadoServico<UsuarioDtoResponse>.Falha($"Usuário de matricula: {matricula} não encontrado.", 404);
             if (!usuario.Funcionario.Ativo)
-                return ResultadoServico<UsuarioDtoResponse>.Falha("Funcionário está inativo.", 400);
+                return ResultadoServico<UsuarioDtoResponse>.Falha("Funcionário está inativo.", 403);
             var dto = new UsuarioDtoResponse
             {
                 NomeFuncionario = usuario.Funcionario.Nome,
@@ -46,7 +90,7 @@ namespace Mecanica.Services.Service
             if (funcionario is null)
                 return ResultadoServico<UsuarioDtoResponse>.Falha($"Funcionario de matricula: {dtoRequestCriar.Matricula} não encontrado.", 404);
             if (!funcionario.Ativo)
-                return ResultadoServico<UsuarioDtoResponse>.Falha("Funcionário está inativo.", 400);
+                return ResultadoServico<UsuarioDtoResponse>.Falha("Funcionário está inativo.", 403);
             if (funcionario.Usuario is not null)
                 return ResultadoServico<UsuarioDtoResponse>.Falha("Funcionário já possui usuário. ", 409);
             var login = await GerarLoginAsync(funcionario.Nome);
@@ -76,54 +120,13 @@ namespace Mecanica.Services.Service
         }
 
         private const int maxTentativasLogin = 5;
-        public async Task<ResultadoServico<string>> LoginAsync(LoginUsuarioDtoRequest dtoResquesteLogin)
-        {
-
-            var usuario = await _repository.ObterPorLoginAsync(dtoResquesteLogin.Login);
-            if (usuario is null)
-                return ResultadoServico<string>.Falha($"Funcionário de login: {dtoResquesteLogin.Login} não encontrado.", 409);
-            if (!usuario.Ativo)
-                return ResultadoServico<string>.Falha("Funcionário está inativo.", 409);
-            if (usuario.Bloqueado)
-                return ResultadoServico<string>.Falha("Funcionário bloqueado.", 409);
-            bool senhaValida = Senhas.ValidarSenha(dtoResquesteLogin.Senha, usuario.SenhaHash!);
-            if (!senhaValida)
-            {
-                usuario.TentativasLogin += 1;
-
-                if (usuario.TentativasLogin >= maxTentativasLogin)
-                {
-                    usuario.Bloqueado = true;
-
-                    await _repository.AtualizarAsync(usuario);
-                    return ResultadoServico<string>.Falha("Funcionário bloqueado, contate seu gestor.", 409);
-                }
-                await _repository.AtualizarAsync(usuario);
-                return ResultadoServico<string>.Falha("Login ou senha incorreta.", 409);
-            }
-            if (usuario.DataPrimeiroAcesso == null)
-            {
-                usuario.DataPrimeiroAcesso = DateTime.UtcNow;
-            }
-            usuario.DataUltimoAcesso = DateTime.UtcNow;
-            usuario.TentativasLogin = 0;
-            await _repository.AtualizarAsync(usuario);
-            if (usuario.PrimeiroAcesso)
-            {
-                return ResultadoServico<string>.Falha("Primeiro acesso. É necessário alterar a senha.", 409);
-            }
-            var permissoes = await _repository.ObterPermissoesAsync(usuario.Id);
-            var token = _jwtService.GerarToken(usuario, permissoes);
-
-            return ResultadoServico<string>.Ok(token, "Login realizado com sucesso. ", 200);
-
-        }
+       
 
         public async Task<ResultadoServico<bool>> AlterarSenhaPrimeiroAcessoAsync(AlterarSenhaPrimeiroAcessoUsuarioDtoRequest dtoRequestAlterarSenha)
         {
             var usuario = await _repository.ObterPorLoginAsync(dtoRequestAlterarSenha.Login);
             if (usuario is null)
-                return ResultadoServico<bool>.Falha($"Funcionário de login: {dtoRequestAlterarSenha.Login} não encontrado.", 409);
+                return ResultadoServico<bool>.Falha($"Funcionário de login: {dtoRequestAlterarSenha.Login} não encontrado.", 401);
             if (!usuario!.PrimeiroAcesso)
                 return ResultadoServico<bool>.Falha($"A senha inicial foi alterada em: {usuario.DataPrimeiroAcesso}. Caso tenha esqueciso, contate seu gestor.", 409);
             bool senhaValida = Senhas.ValidarSenha(dtoRequestAlterarSenha.SenhaAtual, usuario.SenhaHash!);
@@ -137,7 +140,7 @@ namespace Mecanica.Services.Service
 
                 }
                 await _repository.AtualizarAsync(usuario);
-                return ResultadoServico<bool>.Falha("Funcionário bloqueado, contate seu gestor.", 409);
+                return ResultadoServico<bool>.Falha("Funcionário bloqueado, contate seu gestor.", 403);
             }
             usuario.PrimeiroAcesso = false;
             usuario.DataPrimeiroAcesso = DateTime.UtcNow;
@@ -176,7 +179,7 @@ namespace Mecanica.Services.Service
             if (usuario is null)
                 return ResultadoServico<string>.Falha("Usuário não encontrado.", 404);
            if(!usuario.Ativo)
-                return ResultadoServico<string>.Falha("Usuário não está ativo.", 400);
+                return ResultadoServico<string>.Falha("Usuário não está ativo.", 403);
             await _repository.SoftDelete(matricula);
             return ResultadoServico<string>.Ok(null,"Usuário desativado com sucesso.", 200);
 

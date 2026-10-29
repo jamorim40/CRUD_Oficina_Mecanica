@@ -19,7 +19,7 @@ namespace Mecanica.Tests.Infrastructure
         {
             var response = _criarResposta();
 
-            Console.WriteLine($"[HTTP SIMULADO] {request.Method} {request.RequestUri} => {(int)response.StatusCode}");
+            //Console.WriteLine($"[HTTP SIMULADO] {request.Method} {request.RequestUri} => {(int)response.StatusCode}");
             return Task.FromResult(response);
         }
     }

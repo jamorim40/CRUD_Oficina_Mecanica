@@ -35,19 +35,34 @@ namespace Mecanica.Tests.Infrastructure
 
                 services.AddHttpClient("MecanicaApi")
                     .ConfigurePrimaryHttpMessageHandler(() =>
-                        new HttpMessageHandlerSimulado(() => new HttpResponseMessage(HttpStatusCode.OK)
-                        {
-                            Content = JsonContent.Create(new LoginResponse
-                            {
-                                Sucesso = true,
-                                Mensagem = "Login realizado com sucesso.",
-                                Token = TokenSimulado ?? FabricaTesteJwt.GerarTokenValido()
-                            })
-                        }));
+                       new HttpMessageHandlerSimulado(() =>
+                       {
+                           if (StatusCodeSimulado != HttpStatusCode.OK)
+                           {
+                               return new HttpResponseMessage(StatusCodeSimulado)
+                               {
+                                   Content = JsonContent.Create(new
+                                   {
+                                       message = "Login ou senha incorreta."
+                                   })
+                               };
+                           }
+
+                           return new HttpResponseMessage(HttpStatusCode.OK)
+                           {
+                               Content = JsonContent.Create(new LoginResponse
+                               {
+                                   Sucesso = true,
+                                   Mensagem = "Login realizado com sucesso.",
+                                   Token = TokenSimulado ?? FabricaTesteJwt.GerarTokenValido()
+                               })
+                           };
+                       }));
                 services.AddSingleton(SessaoStoreMock.Object);
             });
         }
         public Mock<ISessaoStore> SessaoStoreMock { get; } = new();
         public string? TokenSimulado { get; set; }
+        public HttpStatusCode StatusCodeSimulado { get; set; } = HttpStatusCode.OK;
     }
 }

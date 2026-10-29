@@ -26,6 +26,7 @@ namespace Mecanica.Tests.Endpoints
 
             // Assert
             Assert.Equal(HttpStatusCode.ServiceUnavailable, resposta.StatusCode);
+            Assert.False(resposta.Headers.TryGetValues("Set-Cookie", out var cookies));
 
             fabrica.SessaoStoreMock.Verify(
                 store => store.SalvarAsync(
@@ -75,6 +76,39 @@ namespace Mecanica.Tests.Endpoints
                     It.IsAny<string>(),
                     It.IsAny<DateTimeOffset>()),
                 Times.Never);
+            Assert.False(resposta.Headers.TryGetValues("Set-Cookie", out _));
+        }
+
+        [Fact]
+        public async Task Login_QuandoAutenticado_DeveEmitirCookieSeguro()
+        {
+            // Arrange
+            var token = FabricaTesteJwt.GerarTokenValido();
+            using var fabrica = new FabricaDeTesteMecanicaBlazor
+            {
+                TokenSimulado = token
+            };
+            var client = fabrica.CreateClient();
+            fabrica.SessaoStoreMock.Setup(store => store.SalvarAsync(
+                 It.IsAny<string>(),
+                 It.IsAny<string>(),
+                 It.IsAny<DateTimeOffset>()))
+                 .Returns(Task.CompletedTask);
+            // Act
+            var resposta = await client.PostAsJsonAsync("/auth/login", new LoginRequest
+            {
+                Login = "usuario",
+                Senha = "senha"
+            });
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+            Assert.True(resposta.Headers.TryGetValues("Set-Cookie", out var cookies));
+            var cookieSessao = Assert.Single(cookies!, cookie => cookie.StartsWith("Mecanica.Sessao=", StringComparison.OrdinalIgnoreCase));
+            var cookieCompleto = string.Join("\n", cookies);
+            Assert.Contains("Secure", cookieSessao,StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("HttpOnly", cookieSessao,StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("SameSite=Strict", cookieSessao,StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(token, cookieSessao,StringComparison.OrdinalIgnoreCase);
         }
     }
 }
