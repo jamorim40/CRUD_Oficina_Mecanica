@@ -3,7 +3,7 @@
 @using Mecanica.Blazor.Services
 @using Mecanica.Blazor.Security
 @using Microsoft.JSInterop
-@inject ProvedorEstadoAutenticacaoPersonalizado ProvedorEstadoAutenticacaoPersonalizado
+@inject NavigationManager Navegacao
 @inject AutenticacaoServices AutenticacaoServices
 @inject IJSRuntime JS
 
@@ -55,7 +55,7 @@
         try
         {
 
-            var resultado = await JS.InvokeAsync<LoginResponse>("autenticacaoOficina.login",model.Login,model.Senha);
+            var resultado = await JS.InvokeAsync<LoginResponse>("autenticacaoOficina.login", model.Login, model.Senha);
 
             if (resultado is null)
             {
@@ -68,15 +68,11 @@
                 mensagem = resultado.Mensagem;
                 return;
             }
-            ProvedorEstadoAutenticacaoPersonalizado.AutenticarUsuario(model.Login);
+
             mensagem = "Login realizado com sucesso!";
-            var estado = await ProvedorEstadoAutenticacaoPersonalizado.GetAuthenticationStateAsync();
+            Navegacao.NavigateTo("/", forceLoad: true);
+            
 
-            Console.WriteLine(
-                $"Usuário: {estado.User.Identity?.Name} | " +
-                $"Autenticado: {estado.User.Identity?.IsAuthenticated}");
-
-           
         }
         catch (Exception ex)
         {

@@ -1,25 +1,22 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Mecanica.Blazor.Security;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Mecanica.Blazor.Extensions
 {
     public static class AutenticacaoExtensions
     {
-        public static IServiceCollection AddAuthenticationBlazor(this IServiceCollection services)
+        public const string EsquemaSessao = "MecanicaSessao";
+        public static IServiceCollection AddAuthenticationBlazor(
+            this IServiceCollection servicos)
         {
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.Cookie.Name = "Mecanica.Auth";
-                    options.Cookie.HttpOnly = true;
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.SameSite = SameSiteMode.Lax;
+            servicos
+                .AddAuthentication(AutenticacaoExtensions.EsquemaSessao)
+                .AddScheme<AuthenticationSchemeOptions, AutenticacaoSessaoSecurity>(
+                    AutenticacaoExtensions.EsquemaSessao,
+                    opcoes => { });
 
-
-                    options.LoginPath = "/login";
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-                    options.SlidingExpiration = true;
-                });
-            return services;
+            return servicos;
         }
     }
 }

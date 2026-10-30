@@ -12,7 +12,7 @@ namespace Mecanica.Blazor.Endpoints
             endpoints.MapPost("/auth/login", async (
                 LoginRequest loginRequest,
                 AutenticacaoServices authService,
-                ISessaoStore sessaoStore,
+                IArmazenamentoSessaoSecurity sessaoStore,
                 HttpContext httpContext) =>
             {
                 var resultado = await authService.LoginAsync(loginRequest);
@@ -88,7 +88,7 @@ namespace Mecanica.Blazor.Endpoints
             //    return Results.Ok("Rota encontrada!");
             //});
 
-            endpoints.MapGet("/auth/estado-autenticacao", async (HttpContext httpContext, ISessaoStore sessaoStore) =>
+            endpoints.MapGet("/auth/estado-autenticacao", async (HttpContext httpContext, IArmazenamentoSessaoSecurity sessaoStore) =>
             {
                 // Recupera o identificador da sessão enviado pelo navegador.
                 if (!httpContext.Request.Cookies.TryGetValue(
@@ -127,6 +127,7 @@ namespace Mecanica.Blazor.Endpoints
             ////teste de endpoint para verificar se a API está funcionando corretamente
             //endpoints.MapGet("/auth/teste", () =>Results.Ok("Endpoint funcionando!"));
 
+           
             return endpoints;
         }
     }

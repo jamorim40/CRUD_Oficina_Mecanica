@@ -6,10 +6,12 @@ namespace Mecanica.Blazor.Security
     public class ProvedorEstadoAutenticacaoPersonalizado : AuthenticationStateProvider
     {
         private ClaimsPrincipal _usuarioAutenticado = new (new ClaimsIdentity());
+       
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             return Task.FromResult(new AuthenticationState(_usuarioAutenticado));
         }
+       
 
         public void AutenticarUsuario(string login)
         {

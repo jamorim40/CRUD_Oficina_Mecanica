@@ -13,7 +13,7 @@ namespace Mecanica.Tests.Security.Sessions
         {
             // Arrange: preparar o ambiente de teste
             using var cache = new MemoryCache(new MemoryCacheOptions());
-            var store = new SessaoStoreEmMemoria(cache);
+            var store = new ArmazenamentoSessaoSecurity(cache);
 
             var sessaoId = "sessao123";
             var token = "token123";
@@ -32,7 +32,7 @@ namespace Mecanica.Tests.Security.Sessions
         {
             // Arrange
             using var cache = new MemoryCache(new MemoryCacheOptions());
-            var store = new SessaoStoreEmMemoria(cache);
+            var store = new ArmazenamentoSessaoSecurity(cache);
 
             // Act
             var tokenRecuperado = await store.ObterTokenAsync("sessaoInexistente");
@@ -48,7 +48,7 @@ namespace Mecanica.Tests.Security.Sessions
         {
             // Arrange
             using var cache = new MemoryCache(new MemoryCacheOptions());
-            var store = new SessaoStoreEmMemoria(cache);
+            var store = new ArmazenamentoSessaoSecurity(cache);
 
             var sessaoId = "sessao123";
             var token = "token123";
@@ -69,7 +69,7 @@ namespace Mecanica.Tests.Security.Sessions
         {
             // Arrange
             using var cache = new MemoryCache(new MemoryCacheOptions());
-            var store = new SessaoStoreEmMemoria(cache);
+            var store = new ArmazenamentoSessaoSecurity(cache);
 
             var sessaoId = "sessao123";
             var token = "token123";

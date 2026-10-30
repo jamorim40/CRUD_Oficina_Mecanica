@@ -10,11 +10,11 @@ namespace Mecanica.Blazor.Extensions
         public static IServiceCollection AddInjecaoDependencias(this IServiceCollection services)
         {
             services.AddScoped<AutenticacaoServices>();
-            services.AddScoped<ProvedorEstadoAutenticacaoPersonalizado>();
-            services.AddScoped<AuthenticationStateProvider>(provedor => 
-                provedor.GetRequiredService<ProvedorEstadoAutenticacaoPersonalizado>());
+            //services.AddScoped<ProvedorEstadoAutenticacaoPersonalizado>();
+            //services.AddScoped<AuthenticationStateProvider>(provedor => 
+                //provedor.GetRequiredService<ProvedorEstadoAutenticacaoPersonalizado>());
             services.AddMemoryCache();
-            services.AddSingleton<ISessaoStore, SessaoStoreEmMemoria>();
+            services.AddSingleton<IArmazenamentoSessaoSecurity, ArmazenamentoSessaoSecurity>();
             return services;
         }
     }

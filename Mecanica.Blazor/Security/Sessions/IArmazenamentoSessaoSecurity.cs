@@ -1,6 +1,6 @@
 ﻿namespace Mecanica.Blazor.Security.Sessions
 {
-    public interface ISessaoStore
+    public interface IArmazenamentoSessaoSecurity
     {
         Task SalvarAsync(string sessaoId, string token, DateTimeOffset expiracao);
         Task<string?> ObterTokenAsync(string sessaoId);

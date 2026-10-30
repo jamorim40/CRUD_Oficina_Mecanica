@@ -18,7 +18,7 @@ namespace Mecanica.Tests.Infrastructure
         {
             builder.ConfigureTestServices(services =>
             {
-                services.RemoveAll<ISessaoStore>();
+                services.RemoveAll<IArmazenamentoSessaoSecurity>();
                 SessaoStoreMock
                     .Setup(store => store.SalvarAsync(
                         It.IsAny<string>(),
@@ -61,7 +61,7 @@ namespace Mecanica.Tests.Infrastructure
                 services.AddSingleton(SessaoStoreMock.Object);
             });
         }
-        public Mock<ISessaoStore> SessaoStoreMock { get; } = new();
+        public Mock<IArmazenamentoSessaoSecurity> SessaoStoreMock { get; } = new();
         public string? TokenSimulado { get; set; }
         public HttpStatusCode StatusCodeSimulado { get; set; } = HttpStatusCode.OK;
     }

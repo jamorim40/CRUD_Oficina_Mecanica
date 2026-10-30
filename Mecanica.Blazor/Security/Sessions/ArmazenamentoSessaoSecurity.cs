@@ -2,10 +2,10 @@
 
 namespace Mecanica.Blazor.Security.Sessions
 {
-    public class SessaoStoreEmMemoria : ISessaoStore
+    public class ArmazenamentoSessaoSecurity : IArmazenamentoSessaoSecurity
     {
         private readonly IMemoryCache _cache;
-        public SessaoStoreEmMemoria(IMemoryCache cache)
+        public ArmazenamentoSessaoSecurity(IMemoryCache cache)
         {
             _cache = cache;
         }
