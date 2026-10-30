@@ -10,8 +10,8 @@ namespace Mecanica.Blazor.Endpoints
         public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder endpoints)
         {
             endpoints.MapPost("/auth/login", async (
-                LoginRequest loginRequest, 
-                AutenticacaoServices authService, 
+                LoginRequest loginRequest,
+                AutenticacaoServices authService,
                 ISessaoStore sessaoStore,
                 HttpContext httpContext) =>
             {
@@ -70,6 +70,62 @@ namespace Mecanica.Blazor.Endpoints
                     });
                 return Results.Ok("Credenciais válidas.");
             });
+
+            //endpoints.MapGet("/auth/estado-autenticacao", (HttpContext httpContext) =>
+            //{
+            //    var existeCookie = httpContext.Request.Cookies
+            //        .TryGetValue("Mecanica.Sessao", out var sessaoId);
+
+            //    return Results.Ok(new
+            //    {
+            //        CookieEncontrado = existeCookie,
+            //        SessaoIdPresente = !string.IsNullOrWhiteSpace(sessaoId)
+            //    });
+            //});
+
+            //endpoints.MapGet("/auth/estado-autenticacao", () =>
+            //{
+            //    return Results.Ok("Rota encontrada!");
+            //});
+
+            endpoints.MapGet("/auth/estado-autenticacao", async (HttpContext httpContext, ISessaoStore sessaoStore) =>
+            {
+                // Recupera o identificador da sessão enviado pelo navegador.
+                if (!httpContext.Request.Cookies.TryGetValue(
+                    "Mecanica.Sessao", out var sessaoId))
+                {
+                    return Results.Unauthorized();
+                }
+
+                // Recupera o JWT armazenado no servidor.
+                var token = await sessaoStore.ObterTokenAsync(sessaoId);
+
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    return Results.Unauthorized();
+                }
+
+                // O token foi armazenado pelo servidor após o login na API.
+                var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+                if (jwt.ValidTo <= DateTime.UtcNow)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var login = jwt.Claims
+                    .FirstOrDefault(c => c.Type == "login")?.Value;
+
+                if (string.IsNullOrWhiteSpace(login))
+                {
+                    return Results.Unauthorized();
+                }
+
+                return Results.Ok(new { Login = login });
+            });
+
+            ////teste de endpoint para verificar se a API está funcionando corretamente
+            //endpoints.MapGet("/auth/teste", () =>Results.Ok("Endpoint funcionando!"));
 
             return endpoints;
         }

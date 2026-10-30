@@ -2,9 +2,10 @@
 @using Mecanica.Blazor.Models.Auth
 @using Mecanica.Blazor.Services
 @using Mecanica.Blazor.Security
+@using Microsoft.JSInterop
 @inject ProvedorEstadoAutenticacaoPersonalizado ProvedorEstadoAutenticacaoPersonalizado
-
 @inject AutenticacaoServices AutenticacaoServices
+@inject IJSRuntime JS
 
 <h3>Login</h3>
 
@@ -54,7 +55,7 @@
         try
         {
 
-            var resultado = await AutenticacaoServices.LoginAsync(model);
+            var resultado = await JS.InvokeAsync<LoginResponse>("autenticacaoOficina.login",model.Login,model.Senha);
 
             if (resultado is null)
             {

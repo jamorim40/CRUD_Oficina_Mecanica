@@ -2,23 +2,25 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
 }
 
 main {
     flex: 1;
+    min-width: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f3f6fa;
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background: #192839;
 }
 
 .top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
 }
 
     .top-row ::deep a, .top-row ::deep .btn-link {

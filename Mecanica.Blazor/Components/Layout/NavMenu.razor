@@ -1,30 +1,40 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Solução Mecanica</a>
+        <a class="navbar-brand fw-bold" href="/">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="26"
+                 height="26"
+                 fill="#2585e6"
+                 viewBox="0 0 16 16"
+                 style="margin-right: 8px; vertical-align: middle;">
+                <path d="M.102 2.223a.5.5 0 0 1 .5-.5h.008c.226 0 .424.153.483.371l.48 1.76 1.76.48a.5.5 0 0 1 .371.483v.008a.5.5 0 0 1-.5.5H1.5A1.5 1.5 0 0 1 0 3.825v-.602a1 1 0 0 1 .102-1z" />
+                <path d="M15.654 2.29a.5.5 0 0 0-.81-.163l-3.257 3.257-1.414-.354-.354-1.414L13.076.36a.5.5 0 0 0-.163-.81 5 5 0 0 0-6.14 6.14L.33 12.74a1.5 1.5 0 0 0 2.121 2.121l6.6-6.6a5 5 0 0 0 6.603-5.97z" />
+            </svg>
+            Oficina Mecânica
+        </a>
     </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable"
+     onclick="document.querySelector('.navbar-toggler').click()">
+
     <nav class="nav flex-column">
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <i class="bi bi-house-door-fill fs-4 me-2"></i>
+                Painel da Oficina
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="login">
+                <i class="bi bi-person-badge-fill text-info fs-4 me-2"></i>
+                Login
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
     </nav>
 </div>
-
