@@ -1,4 +1,5 @@
-﻿using Mecanica.Models.Dtos.Requests.Veiculo;
+﻿using Mecanica.Exceptions;
+using Mecanica.Models.Dtos.Requests.Veiculo;
 
 namespace Mecanica.Validations.Interfaces.Veiculo
 {
@@ -15,6 +16,15 @@ namespace Mecanica.Validations.Interfaces.Veiculo
                 erros.Add("Modelo é obrigatório. ");
             if (string.IsNullOrWhiteSpace(dto.Placa))
                 erros.Add("Placa é obrigatória. ");
+
+            int anoAtual = DateTime.Now.Year;
+            if (dto.Ano < 1950 || dto.Ano > anoAtual)
+            {
+                throw new RequisicaoInvalidaException(
+                    $"O ano deve estar entre 1950 e {anoAtual}.");
+            }
+            
+            
             return erros;
         }
     }

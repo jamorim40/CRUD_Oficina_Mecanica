@@ -1,7 +1,6 @@
 ﻿using Mecanica.Models.Entities;
 using Mecanica.Models.Entities.Bases;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Mecanica.Datas
 {
@@ -47,6 +46,7 @@ namespace Mecanica.Datas
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Marca).HasMaxLength(100).IsRequired();
                 entity.Property(x => x.Modelo).HasMaxLength(100).IsRequired();
+                entity.Property(x => x.Ano).IsRequired().IsRequired();
                 entity.Property(x => x.Placa).HasMaxLength(8).IsRequired();
                 entity.HasIndex(x => x.Placa).IsUnique();
                 entity.HasOne(x => x.Cliente).WithMany().HasForeignKey(x => x.ClienteId).OnDelete(DeleteBehavior.Restrict);
